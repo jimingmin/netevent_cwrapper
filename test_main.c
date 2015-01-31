@@ -20,7 +20,12 @@ int32_t main(int argc, char** argv)
 
 	pConnector = create_connector_wrapper();
 	net_connect_wrapper(pConnector, "42.62.31.11", 8001);
-//	destory_connector_wrapper(pConnector);
+
+	while(1)
+	{
+		net_run_wrapper();
+	}
+	//destory_connector_wrapper(pConnector);
 
 	return 0;
 }

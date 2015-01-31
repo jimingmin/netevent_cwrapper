@@ -179,22 +179,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\net_messagehandler.h"
-			>
-		</File>
-		<File
-			RelativePath=".\net_packetparser.h"
-			>
-		</File>
-		<File
-			RelativePath=".\net_packetparserfactory.h"
-			>
-		</File>
-		<File
-			RelativePath=".\net_wrapper.h"
-			>
-		</File>
-		<File
 			RelativePath=".\test_main.c"
 			>
 		</File>

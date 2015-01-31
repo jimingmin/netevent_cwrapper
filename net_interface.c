@@ -9,7 +9,14 @@
 
 void init_context_wrapper()
 {
-	init_context(net_accepted, net_connect_completed, net_read_completed, net_write_completed, net_connect_completed);
+	init_context(net_accept_completed_wrapper, net_connect_completed_wrapper, 
+		net_read_completed_wrapper, net_write_completed_wrapper, net_connect_completed_wrapper);
+}
+
+int32_t net_run_wrapper()
+{
+	net_run();
+	return 0;
 }
 
 struct CAcceptor *create_acceptor_wrapper()

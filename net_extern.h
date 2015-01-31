@@ -11,6 +11,8 @@ extern void init_context(callback_net_accepted func_net_accepted, callback_net_c
 						  callback_net_read func_net_read, callback_net_writen func_net_writen,
 						  callback_net_closed func_net_closed);
 
+extern void net_run();
+
 extern struct CAcceptor *create_acceptor();
 
 extern void destory_acceptor(struct CAcceptor *pAcceptor);

@@ -9,6 +9,8 @@
 
 void init_context_wrapper();
 
+int32_t net_run_wrapper();
+
 struct CAcceptor *create_acceptor_wrapper();
 
 void destory_acceptor_wrapper(struct CAcceptor *pAcceptor);
