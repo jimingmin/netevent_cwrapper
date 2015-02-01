@@ -171,6 +171,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\net_func_wrapper.c"
+			>
+		</File>
+		<File
+			RelativePath=".\net_func_wrapper.h"
+			>
+		</File>
+		<File
 			RelativePath=".\net_interface.c"
 			>
 		</File>

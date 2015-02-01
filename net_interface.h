@@ -1,45 +1,37 @@
 /*
  * net_interface.h
  *
- *  Created on: 2014年12月24日
+ *  Created on: 2015年02月01日
  *      Author: jimm
  */
 
-#include "net_extern.h"
+#include "../common/common_export.h"
+#include "../netevent/net_typedef.h"
 
-void init_context_wrapper();
+EXPORT struct NetFuncEntry *g_pFuncEntry;
 
-int32_t net_run_wrapper();
+struct NetFuncEntry *regist_interface(callback_net_parser func_net_parser, callback_net_accepted func_net_accepted,
+	callback_net_connected func_net_connected, callback_net_connect_timeout func_net_connect_timeout,
+	callback_net_read func_net_read, callback_net_writen func_net_writen,
+	callback_net_closed func_net_closed, callback_net_error func_net_error);
 
-struct CAcceptor *create_acceptor_wrapper();
+void unregist_interface(struct NetFuncEntry *pFuncEntry);
 
-void destory_acceptor_wrapper(struct CAcceptor *pAcceptor);
+struct NetFuncEntry *GetNetFuncEntry();
 
-struct CConnector *create_connector_wrapper();
+int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize);
 
-void destory_connector_wrapper(struct CConnector *pConnector);
+int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
-int32_t net_bind_wrapper(struct CAcceptor *pAcceptor, char *pLocalAddress, uint16_t nLocalPort);
+int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
-int32_t net_accept_completed_wrapper(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
+int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
-int32_t net_connect_wrapper(struct CConnector *pConnector, char *pPeerAddress, uint16_t nPeerPort);
+int32_t func_net_read(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
-int32_t net_connect_completed_wrapper(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
+int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
-int32_t net_connect_timeout_wrapper(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
+int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
-int32_t net_read_completed_wrapper(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
-
-int32_t net_write_wrapper(SessionID nSessionID, uint8_t arrBuf[], int32_t nBytes);
-
-int32_t net_write_completed_wrapper(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
-
-int32_t net_close_wrapper(SessionID nSessionID);
-
-int32_t net_close_completed_wrapper(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
-
-int32_t net_error_wrapper(SessionID nSessionID, int32_t nErrorID);
-
-int32_t net_event_loop();
+int32_t func_net_error(SessionID nSessionID, int32_t nErrorID);
 
