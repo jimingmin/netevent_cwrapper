@@ -5,6 +5,8 @@
  *      Author: jimm
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "net_loop.h"
 #include "net_func_wrapper.h"
 #include "net_interface.h"

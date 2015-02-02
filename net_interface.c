@@ -5,6 +5,9 @@
  *      Author: jimm
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "net_interface.h"
 #include "net_ctype.h"
 
