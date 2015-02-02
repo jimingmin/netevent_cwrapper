@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "net_interface.h"
+#include "net_func_wrapper.h"
 #include "net_ctype.h"
 
 extern struct NetContext *g_pNetContext;
@@ -69,21 +70,6 @@ int32_t func_net_read(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	return 0;
 }
 
-int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
-{
-	return 0;
-}
-
-int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
-{
-	return 0;
-}
-
-int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
-{
-	return 0;
-}
-
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
@@ -93,6 +79,26 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	packet->nPacketSize = nBytes;
 
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
+	return 0;
+}
+
+int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
+{
+	return 0;
+}
+
+int32_t func_net_close(SessionID nSessionID)
+{
+	return net_close_wrapper(g_pNetContext->pNetHandler, nSessionID);
+}
+
+int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
+{
+	return 0;
+}
+
+int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
+{
 	return 0;
 }
 

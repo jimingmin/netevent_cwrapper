@@ -27,11 +27,13 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 
 int32_t func_net_read(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
+int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
+
 int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
+
+int32_t func_net_close(SessionID nSessionID);
 
 int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
 int32_t func_net_error(SessionID nSessionID, int32_t nErrorID);
-
-int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
