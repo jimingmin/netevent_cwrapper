@@ -78,7 +78,10 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	memcpy(packet->pPacketData, pData, nBytes);
 	packet->nPacketSize = nBytes;
 
+	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
+	unlock(g_pNetContext->stSendLock);
+
 	return 0;
 }
 

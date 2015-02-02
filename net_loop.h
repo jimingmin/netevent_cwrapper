@@ -18,6 +18,8 @@ int32_t net_connect_server();
 
 int32_t net_start_server();
 
+int32_t net_send_data();
+
 int32_t net_loop();
 
 void net_uninit();

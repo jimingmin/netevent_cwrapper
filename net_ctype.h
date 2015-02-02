@@ -7,6 +7,7 @@
 
 #include "../netevent/net_typedef.h"
 #include "list.h"
+#include "lock.h"
 
 struct PacketList
 {
@@ -30,7 +31,9 @@ struct NetContext
 	struct CAcceptor	*pAcceptor;
 	struct CConnector	*pConnector;
 	struct CNetHandler	*pNetHandler;
+	LOCK_HANDLE			stSendLock;
 	struct list_head	*pSendList;
+	LOCK_HANDLE			stServerLock;
 	struct list_head	*pServerList;
 };
 

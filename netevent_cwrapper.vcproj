@@ -171,6 +171,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\lock.c"
+			>
+		</File>
+		<File
+			RelativePath=".\lock.h"
+			>
+		</File>
+		<File
 			RelativePath=".\net_ctype.h"
 			>
 		</File>
