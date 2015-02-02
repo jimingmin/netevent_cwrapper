@@ -1,0 +1,23 @@
+/*
+ * net_loop.h
+ *
+ *  Created on: 2015Äê02ÔÂ02ÈÕ
+ *      Author: jimm
+ */
+
+#include "net_ctype.h"
+#include "../common/common_export.h"
+
+EXPORT struct NetContext *g_pNetContext;
+
+int32_t net_init();
+
+void net_add_server(char *addr, uint16_t port);
+
+int32_t net_connect_server();
+
+int32_t net_start_server();
+
+int32_t net_loop();
+
+void net_uninit();

@@ -1,11 +1,14 @@
 /*
- * net_interface.h
+ * net_interface.c
  *
  *  Created on: 2015Äê02ÔÂ01ÈÕ
  *      Author: jimm
  */
 
 #include "net_interface.h"
+#include "net_ctype.h"
+
+extern struct NetContext *g_pNetContext;
 
 struct NetFuncEntry *regist_interface(callback_net_parser func_net_parser, callback_net_accepted func_net_accepted,
 	callback_net_connected func_net_connected, callback_net_connect_timeout func_net_connect_timeout,
@@ -31,12 +34,15 @@ void unregist_interface(struct NetFuncEntry *pFuncEntry)
 
 struct NetFuncEntry *GetNetFuncEntry()
 {
-	return g_pFuncEntry;
+	return g_pNetContext->pNetFuncEntry;
 }
 
 int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize)
 {
-	return 0;
+	*pPacketSize = nBufSize;
+	memcpy(arrPacket, arrBuf, *pPacketSize);
+
+	return nBufSize;
 }
 
 int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
@@ -56,6 +62,7 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 
 int32_t func_net_read(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
+	func_net_write(nSessionID, pData, nBytes);
 	return 0;
 }
 
@@ -73,3 +80,16 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 {
 	return 0;
 }
+
+int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
+{
+	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
+	packet->nSessionID = nSessionID;
+	packet->pPacketData = (uint8_t *)malloc(nBytes);
+	memcpy(packet->pPacketData, pData, nBytes);
+	packet->nPacketSize = nBytes;
+
+	list_add_tail(&packet->list, g_pNetContext->pSendList);
+	return 0;
+}
+

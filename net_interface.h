@@ -8,8 +8,6 @@
 #include "../common/common_export.h"
 #include "../netevent/net_typedef.h"
 
-EXPORT struct NetFuncEntry *g_pFuncEntry;
-
 struct NetFuncEntry *regist_interface(callback_net_parser func_net_parser, callback_net_accepted func_net_accepted,
 	callback_net_connected func_net_connected, callback_net_connect_timeout func_net_connect_timeout,
 	callback_net_read func_net_read, callback_net_writen func_net_writen,
@@ -34,4 +32,6 @@ int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
 int32_t func_net_error(SessionID nSessionID, int32_t nErrorID);
+
+int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 

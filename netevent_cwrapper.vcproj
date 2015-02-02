@@ -167,6 +167,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\list.h"
+			>
+		</File>
+		<File
+			RelativePath=".\net_ctype.h"
+			>
+		</File>
+		<File
 			RelativePath=".\net_extern.h"
 			>
 		</File>
@@ -184,6 +192,14 @@
 		</File>
 		<File
 			RelativePath=".\net_interface.h"
+			>
+		</File>
+		<File
+			RelativePath=".\net_loop.c"
+			>
+		</File>
+		<File
+			RelativePath=".\net_loop.h"
 			>
 		</File>
 		<File
