@@ -11,6 +11,7 @@
 #include "net_interface.h"
 #include "net_func_wrapper.h"
 #include "net_ctype.h"
+#include "code_extern.h"
 
 extern struct NetContext *g_pNetContext;
 
@@ -43,7 +44,24 @@ struct NetFuncEntry *GetNetFuncEntry()
 
 int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize)
 {
-	return nBufSize;
+	uint16_t nTotalSize = 0;
+	uint32_t nOffset = 0;
+	int32_t nRet = 0;
+	nRet = decode_uint16((unsigned char *)arrBuf, nBufSize, &nOffset, &nTotalSize);
+	if(nRet < 0)
+	{
+		return 0;
+	}
+
+	if(nTotalSize > nBufSize)
+	{
+		return 0;
+	}
+
+	*pPacketSize = nTotalSize;
+	memcpy(arrPacket, arrBuf, nTotalSize);
+
+	return nTotalSize;
 }
 
 int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)

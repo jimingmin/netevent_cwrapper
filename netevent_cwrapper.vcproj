@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="netevent.lib"
+				AdditionalDependencies="common.lib netevent.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -166,6 +166,10 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath=".\code_extern.h"
+			>
+		</File>
 		<File
 			RelativePath=".\list.h"
 			>
