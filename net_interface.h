@@ -25,7 +25,9 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 
 int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
-int32_t func_net_read(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
+int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes);
+
+int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
 
@@ -36,4 +38,6 @@ int32_t func_net_close(SessionID nSessionID);
 int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 
 int32_t func_net_error(SessionID nSessionID, int32_t nErrorID);
+
+int32_t func_net_connect(char *addr, uint16_t port);
 

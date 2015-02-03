@@ -9,12 +9,18 @@
 #include "net_interface.h"
 #include "net_loop.h"
 
+struct data
+{
+	int32_t num;
+	struct list_head list;
+};
+
 int32_t main(int argc, char** argv)
 {
 	net_init();
 
-	net_add_server("42.62.31.11", 8001);
-	net_add_server("42.62.31.24", 8001);
+	func_net_connect("42.62.31.11", 8001);
+	func_net_connect("42.62.31.24", 8001);
 
 	while(1)
 	{

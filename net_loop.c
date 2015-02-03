@@ -18,7 +18,7 @@ int32_t net_init()
 
 	//注册回调接口
 	g_pNetContext->pNetFuncEntry = regist_interface(func_net_parser, func_net_accepted, func_net_connected,
-		func_net_connect_timeout, func_net_read, func_net_writen, func_net_closed,
+		func_net_connect_timeout, func_net_recved, func_net_writen, func_net_closed,
 		func_net_error);
 
 	//初始化网络环境
@@ -33,6 +33,11 @@ int32_t net_init()
 	g_pNetContext->pSendList = (struct list_head *)malloc(sizeof(struct list_head));
 	INIT_LIST_HEAD(g_pNetContext->pSendList);
 
+	g_pNetContext->stRecvLock = create_lock();
+	//初始化接收链表
+	g_pNetContext->pRecvList = (struct list_head *)malloc(sizeof(struct list_head));
+	INIT_LIST_HEAD(g_pNetContext->pRecvList);
+
 	g_pNetContext->stServerLock = create_lock();
 	//初始化服务器列表
 	g_pNetContext->pServerList = (struct list_head *)malloc(sizeof(struct list_head));
@@ -41,22 +46,9 @@ int32_t net_init()
 	return 0;
 }
 
-void net_add_server(char *addr, uint16_t port)
-{
-	struct ServerList *pServerList = (struct ServerList *)malloc(sizeof(struct ServerList));
-	strcpy(pServerList->szAddress, addr);
-	pServerList->nPort = port;
-
-	lock(g_pNetContext->stServerLock);
-
-	list_add_tail(&pServerList->list, g_pNetContext->pServerList);
-
-	unlock(g_pNetContext->stServerLock);
-}
-
 int32_t net_connect_server()
 {
-	struct list_head *pos;
+	struct list_head *pos, *backup;
 	struct ServerList *server;
 
 	if(list_empty(g_pNetContext->pServerList))
@@ -72,10 +64,13 @@ int32_t net_connect_server()
 		return 0;
 	}
 
-	list_for_each(pos, g_pNetContext->pServerList)
+	list_for_each_safe(pos, backup, g_pNetContext->pServerList)
 	{
 		server = list_entry(pos, struct ServerList, list);
 		net_connect_wrapper(g_pNetContext->pConnector, server->szAddress, server->nPort);
+
+		list_del(pos);
+		free(server);
 	}
 
 	unlock(g_pNetContext->stServerLock);
@@ -85,7 +80,6 @@ int32_t net_connect_server()
 
 int32_t net_start_server()
 {
-	net_bind_wrapper(g_pNetContext->pAcceptor, "127.0.0.1", 10000);
 	return 0;
 }
 

@@ -33,6 +33,8 @@ struct NetContext
 	struct CNetHandler	*pNetHandler;
 	LOCK_HANDLE			stSendLock;
 	struct list_head	*pSendList;
+	LOCK_HANDLE			stRecvLock;
+	struct list_head	*pRecvList;
 	LOCK_HANDLE			stServerLock;
 	struct list_head	*pServerList;
 };

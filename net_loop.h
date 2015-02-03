@@ -12,8 +12,6 @@ EXPORT struct NetContext *g_pNetContext;
 
 int32_t net_init();
 
-void net_add_server(char *addr, uint16_t port);
-
 int32_t net_connect_server();
 
 int32_t net_start_server();
