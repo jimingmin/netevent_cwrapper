@@ -69,6 +69,27 @@ int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t
 
 int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
 {
+	//struct event_head head;
+	//struct event_connected connected;
+	//uint32_t offset = 0;
+	//uint8_t szPacket[MAX_PACKET_SIZE];
+
+	//head.event_id = SYSEVT_CONNECTED;
+	//head.seq = 0;
+	//head.src_uin = 0;
+	//head.dst_uin = 0;
+
+	//strcpy(connected.address, pPeerAddress);
+	//connected.port = nPeerPort;
+
+	//encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	//encode_event_connected(szPacket, sizeof(szPacket) - offset, &offset, &connected);
+
+	//head.total_size = offset;
+	//offset = 0;
+	//encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	//func_net_write(nSessionID, szPacket, head.total_size);
 	return 0;
 }
 
@@ -94,7 +115,7 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, offset);
+	push_read_queue(nSessionID, szPacket, head.total_size);
 	return 0;
 }
 
@@ -120,7 +141,7 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, offset);
+	push_read_queue(nSessionID, szPacket, head.total_size);
 	return 0;
 }
 
@@ -244,7 +265,7 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, offset);
+	push_read_queue(nSessionID, szPacket, head.total_size);
 	return 0;
 }
 
@@ -269,7 +290,7 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, offset);
+	push_read_queue(nSessionID, szPacket, head.total_size);
 	return 0;
 }
 
