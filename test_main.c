@@ -9,12 +9,6 @@
 #include "net_interface.h"
 #include "net_loop.h"
 
-struct data
-{
-	int32_t num;
-	struct list_head list;
-};
-
 int32_t main(int argc, char** argv)
 {
 	net_init();

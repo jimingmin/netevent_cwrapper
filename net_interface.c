@@ -12,8 +12,11 @@
 #include "net_func_wrapper.h"
 #include "net_ctype.h"
 #include "code_extern.h"
+#include "system_event.h"
+#include "event_format.h"
 
 extern struct NetContext *g_pNetContext;
+static char g_arrSSKey[16] = {'v', 'd', 'c', '$', 'a', 'u', 't', 'h', '@', '1', '7','9','.', 'c', 'o', 'm'};
 
 struct NetFuncEntry *regist_interface(callback_net_parser func_net_parser, callback_net_accepted func_net_accepted,
 	callback_net_connected func_net_connected, callback_net_connect_timeout func_net_connect_timeout,
@@ -71,11 +74,53 @@ int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPe
 
 int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
 {
+	struct event_head head;
+	struct event_connected connected;
+	uint32_t offset = 0;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	head.event_id = SYSEVT_CONNECTED;
+	head.seq = 0;
+	head.src_uin = 0;
+	head.dst_uin = 0;
+
+	strcpy(connected.address, pPeerAddress);
+	connected.port = nPeerPort;
+
+	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	encode_event_connected(szPacket, sizeof(szPacket) - offset, &offset, &connected);
+
+	head.total_size = offset;
+	offset = 0;
+	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	push_read_queue(nSessionID, szPacket, offset);
 	return 0;
 }
 
 int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
 {
+	struct event_head head;
+	struct event_connecttimeout timeout;
+	uint32_t offset = 0;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	head.event_id = SYSEVT_CONNECTTIMEOUT;
+	head.seq = 0;
+	head.src_uin = 0;
+	head.dst_uin = 0;
+
+	strcpy(timeout.address, pPeerAddress);
+	timeout.port = nPeerPort;
+
+	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	encode_event_connecttimeout(szPacket, sizeof(szPacket) - offset, &offset, &timeout);
+
+	head.total_size = offset;
+	offset = 0;
+	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	push_read_queue(nSessionID, szPacket, offset);
 	return 0;
 }
 
@@ -119,26 +164,42 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 
 int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
-	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
-	packet->nSessionID = nSessionID;
-	packet->pPacketData = (uint8_t *)malloc(nBytes);
-	memcpy(packet->pPacketData, pData, nBytes);
-	packet->nPacketSize = nBytes;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+	uint16_t body_size;
+	uint8_t head_size = get_event_head_size();
 
-	lock(g_pNetContext->stRecvLock);
-	list_add_tail(&packet->list, g_pNetContext->pRecvList);
-	unlock(g_pNetContext->stRecvLock);
+	body_size = decrypt((char *)&pData[head_size], nBytes - head_size,
+			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
+	if(body_size <= 0)
+	{
+		return 0;
+	}
 
+	memcpy(szPacket, pData, head_size);
+	push_read_queue(nSessionID, szPacket, head_size + body_size);
 	return 0;
 }
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
-	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
+	uint8_t head_size = 0;
+	struct PacketList *packet = NULL;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+	uint16_t body_size = 0;
+	head_size = get_event_head_size();
+	body_size = encrypt((char *)&pData[head_size], nBytes - head_size,
+			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, NULL);
+	if(body_size <= 0)
+	{
+		return 0;
+	}
+
+	packet = (struct PacketList *)malloc(sizeof(struct PacketList));
 	packet->nSessionID = nSessionID;
-	packet->pPacketData = (uint8_t *)malloc(nBytes);
-	memcpy(packet->pPacketData, pData, nBytes);
-	packet->nPacketSize = nBytes;
+	packet->pPacketData = (uint8_t *)malloc(head_size + body_size);
+	memcpy(packet->pPacketData, pData, head_size);
+	memcpy(&packet->pPacketData[head_size], szPacket, body_size);
+	packet->nPacketSize = head_size + body_size;
 
 	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
@@ -159,11 +220,52 @@ int32_t func_net_close(SessionID nSessionID)
 
 int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
 {
+	struct event_head head;
+	struct event_closed closed;
+	uint32_t offset = 0;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	head.event_id = SYSEVT_CLOSED;
+	head.seq = 0;
+	head.src_uin = 0;
+	head.dst_uin = 0;
+
+	strcpy(closed.address, pPeerAddress);
+	closed.port = nPeerPort;
+
+	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	encode_event_closed(szPacket, sizeof(szPacket) - offset, &offset, &closed);
+
+	head.total_size = offset;
+	offset = 0;
+	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	push_read_queue(nSessionID, szPacket, offset);
 	return 0;
 }
 
 int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 {
+	struct event_head head;
+	struct event_error error;
+	uint32_t offset = 0;
+	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	head.event_id = SYSEVT_CONNECTTIMEOUT;
+	head.seq = 0;
+	head.src_uin = 0;
+	head.dst_uin = 0;
+
+	error.error_code = nErrorID;
+
+	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	encode_event_error(szPacket, sizeof(szPacket) - offset, &offset, &error);
+
+	head.total_size = offset;
+	offset = 0;
+	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	push_read_queue(nSessionID, szPacket, offset);
 	return 0;
 }
 
@@ -178,4 +280,17 @@ int32_t func_net_connect(char *addr, uint16_t port)
 	unlock(g_pNetContext->stServerLock);
 
 	return 0;
+}
+
+void push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
+{
+	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
+	packet->nSessionID = nSessionID;
+	packet->pPacketData = (uint8_t *)malloc(nBytes);
+	memcpy(packet->pPacketData, pData, nBytes);
+	packet->nPacketSize = nBytes;
+
+	lock(g_pNetContext->stRecvLock);
+	list_add_tail(&packet->list, g_pNetContext->pRecvList);
+	unlock(g_pNetContext->stRecvLock);
 }

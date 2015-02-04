@@ -1,0 +1,70 @@
+/*
+ * code_extern.h
+ *
+ *  Created on: 2015年02月03日
+ *      Author: jimm
+ */
+
+#include "../common/common_typedef.h"
+#include "../netevent/net_typedef.h"
+
+#ifdef WIN32
+#define INLINE __inline
+#else
+#define INLINE inline
+#endif
+
+#define SYSEVT_BASE					60000
+//连接接收事件
+#define SYSEVT_ACCEPTED				SYSEVT_BASE + 1
+//连接建立成功
+#define SYSEVT_CONNECTED			SYSEVT_BASE + 2
+//连接超时
+#define SYSEVT_CONNECTTIMEOUT		SYSEVT_BASE + 3
+//连接关闭
+#define SYSEVT_CLOSED				SYSEVT_BASE + 4
+//连接错误
+#define SYSEVT_ERROR				SYSEVT_BASE + 5
+
+struct event_head
+{
+	uint16_t		total_size;
+	uint16_t		event_id;
+	uint32_t		seq;
+	uint32_t		src_uin;
+	uint32_t		dst_uin;
+};
+
+INLINE uint8_t get_event_head_size()
+{
+	return sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t);
+}
+
+struct event_accepted
+{
+	char			address[enmMaxIPAddressLength];
+	uint16_t		port;
+};
+
+struct event_connected
+{
+	char			address[enmMaxIPAddressLength];
+	uint16_t		port;
+};
+
+struct event_connecttimeout
+{
+	char			address[enmMaxIPAddressLength];
+	uint16_t		port;
+};
+
+struct event_closed
+{
+	char			address[enmMaxIPAddressLength];
+	uint16_t		port;
+};
+
+struct event_error
+{
+	uint8_t			error_code;
+};

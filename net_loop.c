@@ -12,6 +12,8 @@
 #include "net_interface.h"
 #include "list.h"
 
+EXPORT struct NetContext *g_pNetContext;
+
 int32_t net_init()
 {
 	g_pNetContext = (struct NetContext *)malloc(sizeof(struct NetContext));
@@ -80,6 +82,7 @@ int32_t net_connect_server()
 
 int32_t net_start_server()
 {
+	net_bind_wrapper(g_pNetContext->pAcceptor, NULL, 10000);
 	return 0;
 }
 

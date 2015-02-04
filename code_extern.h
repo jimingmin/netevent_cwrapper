@@ -5,6 +5,8 @@
  *      Author: jimm
  */
 
+#include "../common/common_typedef.h"
+
 //extern int32_t encode_bool(uint8_t* buf, const uint32_t size, uint32_t* offset, const bool data);
 extern int32_t encode_int8(uint8_t* buf, const uint32_t size, uint32_t* offset, const int8_t data);
 extern int32_t encode_int16(uint8_t* buf, const uint32_t size, uint32_t* offset, const int16_t data);
@@ -30,3 +32,6 @@ extern int32_t decode_uint64(const uint8_t *buf, const uint32_t size, uint32_t* 
 extern int32_t decode_uint8_mem(const uint8_t *buf, const uint32_t size, uint32_t* offset, uint8_t* data, const uint32_t length, const uint32_t maxLength);
 extern int32_t decode_char_mem(const uint8_t *buf, const uint32_t size, uint32_t* offset, char* data, const uint16_t maxLength);
 extern int32_t decode_double(const uint8_t *buf, const uint32_t size, uint32_t* offset, double* data);
+
+extern int32_t encrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);
+extern int32_t decrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);

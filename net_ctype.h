@@ -9,6 +9,8 @@
 #include "list.h"
 #include "lock.h"
 
+#define MAX_PACKET_SIZE		64 * 1024
+
 struct PacketList
 {
 	SessionID			nSessionID;

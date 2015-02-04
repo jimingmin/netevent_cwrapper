@@ -58,45 +58,45 @@ struct list_head name = LIST_HEAD_INIT(name)
 } while (0)
 
 /*
-* Insert a new entry between two known consecutive entries.
+* Insert a new_node entry between two known consecutive entries.
 *
 * This is only for internal list manipulation where we know
 * the prev/next entries already!
 */
-static INLINE void __list_add(struct list_head *new,
+static INLINE void __list_add(struct list_head *new_node,
 				struct list_head *prev,
 				struct list_head *next)
 {
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	prev->next = new;
+	next->prev = new_node;
+	new_node->next = next;
+	new_node->prev = prev;
+	prev->next = new_node;
 }
 
 /**
-* list_add 每 add a new entry
-* @new: new entry to be added
+* list_add 每 add a new_node entry
+* @new_node: new_node entry to be added
 * @head: list head to add it after
 *
-* Insert a new entry after the specified head.
+* Insert a new_node entry after the specified head.
 * This is good for implementing stacks.
 */
-static INLINE void list_add(struct list_head *new, struct list_head *head)
+static INLINE void list_add(struct list_head *new_node, struct list_head *head)
 {
-	__list_add(new, head, head->next);
+	__list_add(new_node, head, head->next);
 }
 
 /**
-* list_add_tail 每 add a new entry
-* @new: new entry to be added
+* list_add_tail 每 add a new_node entry
+* @new_node: new_node entry to be added
 * @head: list head to add it before
 *
-* Insert a new entry before the specified head.
+* Insert a new_node entry before the specified head.
 * This is useful for implementing queues.
 */
-static INLINE void list_add_tail(struct list_head *new, struct list_head *head)
+static INLINE void list_add_tail(struct list_head *new_node, struct list_head *head)
 {
-	__list_add(new, head->prev, head);
+	__list_add(new_node, head->prev, head);
 }
 
 /*
@@ -120,8 +120,8 @@ static INLINE void __list_del(struct list_head *prev, struct list_head *next)
 static INLINE void list_del(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
-	entry->next = (void *) 0;
-	entry->prev = (void *) 0;
+	entry->next = NULL;//(void *) 0;
+	entry->prev = NULL;//(void *) 0;
 }
 
 /**
@@ -183,7 +183,7 @@ static INLINE void __list_splice(struct list_head *list,
 
 /**
 * list_splice 每 join two lists
-* @list: the new list to add.
+* @list: the new_node list to add.
 * @head: the place to add it in the first list.
 */
 static INLINE void list_splice(struct list_head *list, struct list_head *head)
@@ -194,7 +194,7 @@ __list_splice(list, head);
 
 /**
 * list_splice_init 每 join two lists and reinitialise the emptied list.
-* @list: the new list to add.
+* @list: the new_node list to add.
 * @head: the place to add it in the first list.
 *
 * The list at @list is reinitialised

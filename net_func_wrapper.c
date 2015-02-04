@@ -8,6 +8,8 @@
 #include "net_func_wrapper.h"
 #include "net_interface.h"
 
+extern struct NetContext *g_pNetContext;
+
 struct CNetHandler* init_context_wrapper()
 {
 	return init_context(net_parser_wrapper, net_accept_completed_wrapper, net_connect_completed_wrapper,

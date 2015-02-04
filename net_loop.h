@@ -8,7 +8,7 @@
 #include "net_ctype.h"
 #include "../common/common_export.h"
 
-EXPORT struct NetContext *g_pNetContext;
+//extern struct NetContext *g_pNetContext;
 
 int32_t net_init();
 

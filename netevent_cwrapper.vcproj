@@ -171,6 +171,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\event_format.c"
+			>
+		</File>
+		<File
+			RelativePath=".\event_format.h"
+			>
+		</File>
+		<File
 			RelativePath=".\list.h"
 			>
 		</File>
@@ -212,6 +220,10 @@
 		</File>
 		<File
 			RelativePath=".\net_loop.h"
+			>
+		</File>
+		<File
+			RelativePath=".\system_event.h"
 			>
 		</File>
 		<File
