@@ -7,7 +7,6 @@
 
 #include "event_format.h"
 #include "code_extern.h"
-#include "system_event.h"
 
 int32_t encode_event_head(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_head *target)
 {

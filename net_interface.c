@@ -166,7 +166,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	uint8_t szPacket[MAX_PACKET_SIZE];
 	uint16_t body_size;
-	uint8_t head_size = get_event_head_size();
+	uint8_t head_size = event_head_size();
 
 	body_size = decrypt((char *)&pData[head_size], nBytes - head_size,
 			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
@@ -186,7 +186,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	struct PacketList *packet = NULL;
 	uint8_t szPacket[MAX_PACKET_SIZE];
 	uint16_t body_size = 0;
-	head_size = get_event_head_size();
+	head_size = event_head_size();
 	body_size = encrypt((char *)&pData[head_size], nBytes - head_size,
 			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, NULL);
 	if(body_size <= 0)

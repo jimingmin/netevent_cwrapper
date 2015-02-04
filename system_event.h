@@ -5,6 +5,9 @@
  *      Author: jimm
  */
 
+#ifndef SYSTEM_EVENT_H_
+#define SYSTEM_EVENT_H_
+
 #include "../common/common_typedef.h"
 #include "../netevent/net_typedef.h"
 
@@ -35,10 +38,9 @@ struct event_head
 	uint32_t		dst_uin;
 };
 
-INLINE uint8_t get_event_head_size()
-{
-	return sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t);
-}
+#define event_head_size()	\
+	(sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t))
+
 
 struct event_accepted
 {
@@ -68,3 +70,5 @@ struct event_error
 {
 	uint8_t			error_code;
 };
+
+#endif
