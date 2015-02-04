@@ -205,12 +205,12 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	uint8_t head_size = 0;
 	struct PacketList *packet = NULL;
-	uint8_t szPacket[MAX_PACKET_SIZE];
+	uint8_t szBody[MAX_PACKET_SIZE];
 	uint16_t body_size = 0;
 	uint32_t offset = 0;
 	head_size = event_head_size();
 	body_size = func_encrypt((char *)&pData[head_size], nBytes - head_size,
-			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
+			(char *)szBody, sizeof(szBody), g_arrSSKey);
 	if(body_size <= 0)
 	{
 		return 0;
@@ -221,7 +221,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	packet->nSessionID = nSessionID;
 	memcpy(packet->pPacketData, pData, head_size);
-	memcpy(&packet->pPacketData[head_size], szPacket, body_size);
+	memcpy(&packet->pPacketData[head_size], szBody, body_size);
 
 	packet->nPacketSize = head_size + body_size;
 	encode_uint16(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
