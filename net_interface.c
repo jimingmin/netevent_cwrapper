@@ -69,28 +69,27 @@ int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t
 
 int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
 {
-	//struct event_head head;
-	//struct event_connected connected;
-	//uint32_t offset = 0;
-	//uint8_t szPacket[MAX_PACKET_SIZE];
+	struct event_head head;
+	struct event_accepted accepted;
+	uint32_t offset = 0;
+	uint8_t szPacket[MAX_PACKET_SIZE];
 
-	//head.event_id = SYSEVT_CONNECTED;
-	//head.seq = 0;
-	//head.src_uin = 0;
-	//head.dst_uin = 0;
+	head.event_id = SYSEVT_ACCEPTED;
+	head.seq = 0;
+	head.src_uin = 0;
+	head.dst_uin = 0;
 
-	//strcpy(connected.address, pPeerAddress);
-	//connected.port = nPeerPort;
+	strcpy(accepted.address, pPeerAddress);
+	accepted.port = nPeerPort;
 
-	//encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
-	//encode_event_connected(szPacket, sizeof(szPacket) - offset, &offset, &connected);
+	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
+	encode_event_accepted(szPacket, sizeof(szPacket) - offset, &offset, &accepted);
 
-	//head.total_size = offset;
-	//offset = 0;
-	//encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	head.total_size = offset;
+	offset = 0;
+	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	//func_net_write(nSessionID, szPacket, head.total_size);
-	return 0;
+	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
 int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
@@ -115,8 +114,7 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, head.total_size);
-	return 0;
+	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
 int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort)
@@ -141,8 +139,7 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, head.total_size);
-	return 0;
+	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
 int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
@@ -180,7 +177,7 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 
 	unlock(g_pNetContext->stRecvLock);
 
-	return 0;
+	return packet->nPacketSize;
 }
 
 int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
@@ -198,7 +195,8 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	memcpy(szPacket, pData, head_size);
 	push_read_queue(nSessionID, szPacket, head_size + body_size);
-	return 0;
+
+	return func_net_write(nSessionID, szPacket, head_size + body_size);
 }
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
@@ -230,7 +228,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
 	unlock(g_pNetContext->stSendLock);
 
-	return 0;
+	return (head_size + body_size);
 }
 
 int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
@@ -265,8 +263,7 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, head.total_size);
-	return 0;
+	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
 int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
@@ -290,8 +287,7 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	push_read_queue(nSessionID, szPacket, head.total_size);
-	return 0;
+	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
 int32_t func_net_connect(char *addr, uint16_t port)
@@ -307,7 +303,7 @@ int32_t func_net_connect(char *addr, uint16_t port)
 	return 0;
 }
 
-void push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
+int32_t push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	struct PacketList *packet = (struct PacketList *)malloc(sizeof(struct PacketList));
 	packet->nSessionID = nSessionID;
@@ -318,4 +314,6 @@ void push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	lock(g_pNetContext->stRecvLock);
 	list_add_tail(&packet->list, g_pNetContext->pRecvList);
 	unlock(g_pNetContext->stRecvLock);
+
+	return nBytes;
 }

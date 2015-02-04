@@ -41,4 +41,4 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID);
 
 int32_t func_net_connect(char *addr, uint16_t port);
 
-static void push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes);
+static int32_t push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes);

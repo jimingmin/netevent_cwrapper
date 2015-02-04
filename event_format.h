@@ -10,6 +10,8 @@
 
 int32_t encode_event_head(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_head *target);
 
+int32_t encode_event_accepted(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_accepted *target);
+
 int32_t encode_event_connected(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_connected *target);
 
 int32_t encode_event_connecttimeout(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_connecttimeout *target);

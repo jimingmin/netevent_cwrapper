@@ -19,6 +19,15 @@ int32_t encode_event_head(uint8_t *buf, int32_t buf_size, uint32_t *offset, stru
 	return 0;
 }
 
+
+int32_t encode_event_accepted(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_accepted *target)
+{
+	encode_char_mem(buf, buf_size, offset, target->address, enmMaxIPAddressLength);
+	encode_uint16(buf, buf_size, offset, target->port);
+
+	return 0;
+}
+
 int32_t encode_event_connected(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_connected *target)
 {
 	encode_char_mem(buf, buf_size, offset, target->address, enmMaxIPAddressLength);
