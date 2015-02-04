@@ -186,20 +186,24 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	struct PacketList *packet = NULL;
 	uint8_t szPacket[MAX_PACKET_SIZE];
 	uint16_t body_size = 0;
+	uint32_t offset = 0;
 	head_size = event_head_size();
 	body_size = encrypt((char *)&pData[head_size], nBytes - head_size,
-			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, NULL);
+			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
 	if(body_size <= 0)
 	{
 		return 0;
 	}
 
 	packet = (struct PacketList *)malloc(sizeof(struct PacketList));
-	packet->nSessionID = nSessionID;
 	packet->pPacketData = (uint8_t *)malloc(head_size + body_size);
+
+	packet->nSessionID = nSessionID;
 	memcpy(packet->pPacketData, pData, head_size);
 	memcpy(&packet->pPacketData[head_size], szPacket, body_size);
+
 	packet->nPacketSize = head_size + body_size;
+	encode_uint16(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
 
 	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);

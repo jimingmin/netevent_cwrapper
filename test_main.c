@@ -13,13 +13,10 @@ int32_t main(int argc, char** argv)
 {
 	net_init();
 
-	func_net_connect("42.62.31.11", 8001);
-	func_net_connect("42.62.31.24", 8001);
+	//func_net_connect("42.62.31.11", 8001);
+	//func_net_connect("42.62.31.24", 8001);
 
-	while(1)
-	{
-		net_loop();
-	}
+	net_loop();
 	//struct CAcceptor *pAcceptor = NULL;
 	//struct CConnector *pConnector = NULL;
 	//struct CNetHandler *pNetHandler = NULL;

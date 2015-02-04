@@ -33,5 +33,5 @@ extern int32_t decode_uint8_mem(const uint8_t *buf, const uint32_t size, uint32_
 extern int32_t decode_char_mem(const uint8_t *buf, const uint32_t size, uint32_t* offset, char* data, const uint16_t maxLength);
 extern int32_t decode_double(const uint8_t *buf, const uint32_t size, uint32_t* offset, double* data);
 
-extern int32_t encrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);
-extern int32_t decrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);
+extern int32_t func_encrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);
+extern int32_t func_decrypt(char* pbyInBuffer, int32_t nInBufferLength, char* pbyOutBuffer, int32_t nOutBufferLength, char arrbyKey[16]);
