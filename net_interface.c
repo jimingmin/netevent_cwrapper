@@ -79,6 +79,7 @@ int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPe
 	head.src_uin = 0;
 	head.dst_uin = 0;
 
+	accepted.sessionid = nSessionID;
 	strcpy(accepted.address, pPeerAddress);
 	accepted.port = nPeerPort;
 
@@ -104,6 +105,7 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	head.src_uin = 0;
 	head.dst_uin = 0;
 
+	connected.sessionid = nSessionID;
 	strcpy(connected.address, pPeerAddress);
 	connected.port = nPeerPort;
 
@@ -251,6 +253,7 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	head.src_uin = 0;
 	head.dst_uin = 0;
 
+	closed.sessionid = nSessionID;
 	strcpy(closed.address, pPeerAddress);
 	closed.port = nPeerPort;
 
@@ -276,6 +279,7 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 	head.src_uin = 0;
 	head.dst_uin = 0;
 
+	error.sessionid = nSessionID;
 	error.error_code = nErrorID;
 
 	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);

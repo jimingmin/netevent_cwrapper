@@ -22,6 +22,7 @@ int32_t encode_event_head(uint8_t *buf, int32_t buf_size, uint32_t *offset, stru
 
 int32_t encode_event_accepted(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_accepted *target)
 {
+	encode_uint32(buf, buf_size, offset, target->sessionid);
 	encode_char_mem(buf, buf_size, offset, target->address, enmMaxIPAddressLength);
 	encode_uint16(buf, buf_size, offset, target->port);
 
@@ -30,6 +31,7 @@ int32_t encode_event_accepted(uint8_t *buf, int32_t buf_size, uint32_t *offset, 
 
 int32_t encode_event_connected(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_connected *target)
 {
+	encode_uint32(buf, buf_size, offset, target->sessionid);
 	encode_char_mem(buf, buf_size, offset, target->address, enmMaxIPAddressLength);
 	encode_uint16(buf, buf_size, offset, target->port);
 
@@ -46,6 +48,7 @@ int32_t encode_event_connecttimeout(uint8_t *buf, int32_t buf_size, uint32_t *of
 
 int32_t encode_event_closed(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_closed *target)
 {
+	encode_uint32(buf, buf_size, offset, target->sessionid);
 	encode_char_mem(buf, buf_size, offset, target->address, enmMaxIPAddressLength);
 	encode_uint16(buf, buf_size, offset, target->port);
 
@@ -54,6 +57,7 @@ int32_t encode_event_closed(uint8_t *buf, int32_t buf_size, uint32_t *offset, st
 
 int32_t encode_event_error(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_error *target)
 {
+	encode_uint32(buf, buf_size, offset, target->sessionid);
 	encode_uint8(buf, buf_size, offset, target->error_code);
 
 	return 0;

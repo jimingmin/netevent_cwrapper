@@ -44,12 +44,14 @@ struct event_head
 
 struct event_accepted
 {
+	SessionID		sessionid;
 	char			address[enmMaxIPAddressLength];
 	uint16_t		port;
 };
 
 struct event_connected
 {
+	SessionID		sessionid;
 	char			address[enmMaxIPAddressLength];
 	uint16_t		port;
 };
@@ -62,12 +64,14 @@ struct event_connecttimeout
 
 struct event_closed
 {
+	SessionID		sessionid;
 	char			address[enmMaxIPAddressLength];
 	uint16_t		port;
 };
 
 struct event_error
 {
+	SessionID		sessionid;
 	uint8_t			error_code;
 };
 
