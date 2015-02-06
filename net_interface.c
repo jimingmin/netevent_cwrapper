@@ -194,9 +194,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	}
 
 	memcpy(szPacket, pData, head_size);
-	push_read_queue(nSessionID, szPacket, head_size + body_size);
-
-	return func_net_write(nSessionID, szPacket, head_size + body_size);
+	return push_read_queue(nSessionID, szPacket, head_size + body_size);
 }
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
