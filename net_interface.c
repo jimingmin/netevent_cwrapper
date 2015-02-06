@@ -170,10 +170,10 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 	memcpy(pData, packet->pPacketData, packet->nPacketSize);
 	*pBytes = packet->nPacketSize;
 
+	list_del(&packet->list);
+
 	free(packet->pPacketData);
 	free(packet);
-
-	list_del(&packet->list);
 
 	unlock(g_pNetContext->stRecvLock);
 
