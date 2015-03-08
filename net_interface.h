@@ -17,7 +17,7 @@ void unregist_interface(struct NetFuncEntry *pFuncEntry);
 
 struct NetFuncEntry *GetNetFuncEntry();
 
-int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize);
+int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrOutputBuf[], int32_t nOutputBufSize);
 
 int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPeerPort);
 

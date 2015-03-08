@@ -45,7 +45,7 @@ struct NetFuncEntry *GetNetFuncEntry()
 	return g_pNetContext->pNetFuncEntry;
 }
 
-int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize)
+int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrOutputBuf[], int32_t nOutputBufSize)
 {
 	uint16_t nTotalSize = 0;
 	uint32_t nOffset = 0;
@@ -61,8 +61,7 @@ int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t
 		return 0;
 	}
 
-	*pPacketSize = nTotalSize;
-	memcpy(arrPacket, arrBuf, nTotalSize);
+	memcpy(arrOutputBuf, arrBuf, nTotalSize);
 
 	return nTotalSize;
 }

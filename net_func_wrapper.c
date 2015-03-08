@@ -28,13 +28,13 @@ int32_t net_run_wrapper(struct CNetHandler* pNetHandler)
 	return 0;
 }
 
-int32_t net_parser_wrapper(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize)
+int32_t net_parser_wrapper(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrOutputBuf[], int32_t nOutputBufSize)
 {
 	if(GetNetFuncEntry()->func_net_parser == NULL)
 	{
 		return 0;
 	}
-	return GetNetFuncEntry()->func_net_parser(arrBuf, nBufSize, arrPacket, pPacketSize);
+	return GetNetFuncEntry()->func_net_parser(arrBuf, nBufSize, arrOutputBuf, nOutputBufSize);
 }
 
 struct CAcceptor *create_acceptor_wrapper(struct CNetHandler* pNetHandler)

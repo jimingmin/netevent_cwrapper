@@ -13,7 +13,7 @@ void uninit_context_wrapper(struct CNetHandler *pNetHandler);
 
 int32_t net_run_wrapper(struct CNetHandler* pNetHandler);
 
-int32_t net_parser_wrapper(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrPacket[], int32_t *pPacketSize);
+int32_t net_parser_wrapper(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t arrOutputBuf[], int32_t nOutputBufSize);
 
 struct CAcceptor *create_acceptor_wrapper(struct CNetHandler* pNetHandler);
 

@@ -13,7 +13,7 @@ int32_t main(int argc, char** argv)
 {
 	net_init();
 
-	func_net_connect("42.62.31.11", 18001);
+	func_net_connect("42.62.31.11", 8001);
 	//func_net_connect("42.62.31.24", 8001);
 
 	net_loop();
