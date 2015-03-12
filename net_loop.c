@@ -88,7 +88,7 @@ int32_t net_start_server()
 	return 0;
 }
 
-int32_t net_stop_server()
+int32_t net_stop()
 {
 	g_pNetContext->nIsStop = 1;
 	return 0;
@@ -139,6 +139,8 @@ int32_t net_loop()
 
 		net_run_wrapper(g_pNetContext->pNetHandler);
 	}
+
+	net_uninit();
 
 	return 0;
 }
