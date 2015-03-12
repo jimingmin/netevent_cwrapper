@@ -16,6 +16,8 @@ int32_t net_connect_server();
 
 int32_t net_start_server();
 
+int32_t net_stop();
+
 int32_t net_send_data();
 
 int32_t net_loop();

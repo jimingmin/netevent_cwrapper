@@ -33,6 +33,7 @@ struct NetContext
 	struct CAcceptor	*pAcceptor;
 	struct CConnector	*pConnector;
 	struct CNetHandler	*pNetHandler;
+	int32_t				nIsStop;
 	LOCK_HANDLE			stSendLock;
 	struct list_head	*pSendList;
 	LOCK_HANDLE			stRecvLock;

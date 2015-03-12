@@ -29,6 +29,8 @@ int32_t net_init()
 	g_pNetContext->pAcceptor = create_acceptor_wrapper(g_pNetContext->pNetHandler);
 	//初始化连接器
 	g_pNetContext->pConnector = create_connector_wrapper(g_pNetContext->pNetHandler);
+	//初始化退出标志
+	g_pNetContext->nIsStop = 0;
 
 	g_pNetContext->stSendLock = create_lock();
 	//初始化发送链表
@@ -86,6 +88,12 @@ int32_t net_start_server()
 	return 0;
 }
 
+int32_t net_stop_server()
+{
+	g_pNetContext->nIsStop = 1;
+	return 0;
+}
+
 int32_t net_send_data()
 {
 	struct list_head *pos, *backup;
@@ -123,7 +131,7 @@ int32_t net_loop()
 {
 	net_start_server();
 
-	while(1)
+	while(!g_pNetContext->nIsStop)
 	{
 		net_connect_server();
 
