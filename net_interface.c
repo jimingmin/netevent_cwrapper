@@ -155,6 +155,11 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 	struct list_head *pos, *backup;
 	struct PacketList *packet;
 
+    if(g_pNetContext == NULL)
+    {
+        return 0;
+    }
+    
 	if(list_empty(g_pNetContext->pRecvList))
 	{
 		return 0;
