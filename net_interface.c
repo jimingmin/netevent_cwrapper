@@ -119,8 +119,9 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 
 	struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
 	pTimerData->nSessionID = nSessionID;
+    pTimerData->nMissCount = 0;
 
-	net_create_timer(check_net_health, pTimerData, 50, 1);
+	net_create_timer(check_net_health, pTimerData, 45, 1);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
@@ -219,7 +220,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	//如果是pong包
 	if(msgid == NETEVT_PONG)
 	{
-		recv_pong(nSessionID);
+		return recv_pong(nSessionID);
 	}
 	else
 	{
