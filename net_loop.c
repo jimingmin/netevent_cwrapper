@@ -10,6 +10,7 @@
 #include "net_loop.h"
 #include "net_func_wrapper.h"
 #include "net_interface.h"
+#include "net_timer.h"
 #include "list.h"
 
 EXPORT struct NetContext *g_pNetContext;
@@ -45,7 +46,9 @@ int32_t net_init()
 	g_pNetContext->stServerLock = create_lock();
 	//初始化服务器列表
 	g_pNetContext->pServerList = (struct list_head *)malloc(sizeof(struct list_head));
-	INIT_LIST_HEAD(g_pNetContext->pServerList);
+	INIT_LIST_HEAD(g_pNetContext->pServerList);\
+
+	net_timer_init();
 
 	return 0;
 }
@@ -137,6 +140,8 @@ int32_t net_loop()
 
 		net_send_data();
 
+		net_loop_timer();
+
 		net_run_wrapper(g_pNetContext->pNetHandler);
 	}
 
@@ -162,4 +167,6 @@ void net_uninit()
 
 	free(g_pNetContext);
 	g_pNetContext = NULL;
+
+	net_timer_uninit();
 }
