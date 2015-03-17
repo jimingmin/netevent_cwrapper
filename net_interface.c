@@ -14,6 +14,8 @@
 #include "code_extern.h"
 #include "system_event.h"
 #include "event_format.h"
+#include "net_health.h"
+#include "net_timer.h"
 
 extern struct NetContext *g_pNetContext;
 static char g_arrSSKey[16] = {'v', 'd', 'c', '$', 'a', 'u', 't', 'h', '@', '1', '7','9','.', 'c', 'o', 'm'};
@@ -115,6 +117,11 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
+	struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
+	pTimerData->nSessionID = nSessionID;
+
+	net_create_timer(check_net_health, pTimerData, 50, 1);
+
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
@@ -196,9 +203,21 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	memcpy(szPacket, pData, head_size);
 
-	uint32_t offset = 0;
 	uint16_t packet_size = head_size + body_size;
-	encode_uint16(szPacket, sizeof(szPacket), offset, packet_size);
+
+	uint32_t offset = sizeof(uint16_t);
+	uint16_t msgid = 0;
+	decode_uint16(szPacket, packet_size, &offset, &msgid);
+	//如果是pong包
+	if(msgid == NETEVT_PONG)
+	{
+		recv_pong(nSessionID);
+	}
+	else
+	{
+		offset = 0;
+		encode_uint16(szPacket, sizeof(szPacket), &offset, packet_size);
+	}
 
 	return push_read_queue(nSessionID, szPacket, packet_size);
 }
@@ -267,6 +286,8 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	head.total_size = offset;
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+
+	net_destroy_timer_by_sessionid(nSessionID);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
