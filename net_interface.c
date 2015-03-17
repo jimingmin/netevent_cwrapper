@@ -199,11 +199,14 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	uint16_t body_size;
 	uint8_t head_size = event_head_size();
 
-	body_size = func_decrypt((char *)&pData[head_size], nBytes - head_size,
-			(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
-	if(body_size <= 0)
+	if(head_size < nBytes)
 	{
-		return 0;
+		body_size = func_decrypt((char *)&pData[head_size], nBytes - head_size,
+				(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
+		if(body_size <= 0)
+		{
+			return 0;
+		}
 	}
 
 	memcpy(szPacket, pData, head_size);
@@ -235,11 +238,14 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	uint16_t body_size = 0;
 	uint32_t offset = 0;
 	head_size = event_head_size();
-	body_size = func_encrypt((char *)&pData[head_size], nBytes - head_size,
-			(char *)szBody, sizeof(szBody), g_arrSSKey);
-	if(body_size <= 0)
+	if(head_size < nBytes)
 	{
-		return 0;
+		body_size = func_encrypt((char *)&pData[head_size], nBytes - head_size,
+				(char *)szBody, sizeof(szBody), g_arrSSKey);
+		if(body_size <= 0)
+		{
+			return 0;
+		}
 	}
 
 	packet = (struct PacketList *)malloc(sizeof(struct PacketList));
