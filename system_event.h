@@ -29,6 +29,12 @@
 //连接错误
 #define SYSEVT_ERROR				SYSEVT_BASE + 5
 
+#define NETEVT_BASE					60100
+//ping包
+#define NETEVT_PING					NETEVT_BASE + 1
+//pong包
+#define NETEVT_PONG					NETEVT_BASE + 2
+
 struct event_head
 {
 	uint16_t		total_size;

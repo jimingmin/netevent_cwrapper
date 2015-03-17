@@ -5,6 +5,9 @@
  *      Author: jimm
  */
 
+#ifndef EVENT_FORMAT_H_
+#define EVENT_FORMAT_H_
+
 #include "code_extern.h"
 #include "system_event.h"
 
@@ -19,3 +22,5 @@ int32_t encode_event_connecttimeout(uint8_t *buf, int32_t buf_size, uint32_t *of
 int32_t encode_event_closed(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_closed *target);
 
 int32_t encode_event_error(uint8_t *buf, int32_t buf_size, uint32_t *offset, struct event_error *target);
+
+#endif /* EVENT_FORMAT_H_ */
