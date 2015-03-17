@@ -149,8 +149,6 @@ int32_t net_loop()
     
     net_uninit();
 
-	net_uninit();
-
 	return 0;
 }
 
