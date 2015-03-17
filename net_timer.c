@@ -79,15 +79,22 @@ int32_t net_insert_timer(NetTimer *net_timer)
 	struct list_head *pos, *backup;
 	NetTimer *find_net_timer;
 
+    int32_t bIsFind = 0;
 	list_for_each_safe(pos, backup, g_pNetTimerList)
 	{
 		find_net_timer = list_entry(pos, NetTimer, list);
 		if(find_net_timer->nEndTime >= net_timer->nEndTime)
 		{
+            bIsFind = 1;
 			list_add_tail(&net_timer->list, &find_net_timer->list);
 			break;
 		}
 	}
+    
+    if(!bIsFind)
+    {
+        list_add_tail(&net_timer->list, g_pNetTimerList);
+    }
 
 	return 0;
 }
@@ -127,12 +134,16 @@ int32_t net_loop_timer()
 	list_for_each_safe(pos, backup, g_pNetTimerList)
 	{
 		net_timer = list_entry(pos, NetTimer, list);
-		(*net_timer->Proc)(net_timer->pTimerData);
+        if(now < net_timer->nEndTime)
+        {
+            continue;
+        }
+        
+        (*net_timer->Proc)(net_timer->pTimerData);
 
 		if(net_timer->bIsLoop != 0)
 		{
 			net_timer->nEndTime = net_timer->nCycleTime + now;
-			net_insert_timer(net_timer);
 		}
 		else
 		{
