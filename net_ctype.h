@@ -5,6 +5,9 @@
  *      Author: jimm
  */
 
+#ifndef NET_CTYPE_H_
+#define NET_CTYPE_H_
+
 #include "../netevent/net_typedef.h"
 #include "list.h"
 #include "lock.h"
@@ -42,3 +45,10 @@ struct NetContext
 	struct list_head	*pServerList;
 };
 
+struct HeartbeatTimerData
+{
+	SessionID			nSessionID;
+	int32_t				nMissCount;
+};
+
+#endif /* NET_CTYPE_H_ */
