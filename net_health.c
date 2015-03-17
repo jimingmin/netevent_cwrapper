@@ -45,6 +45,11 @@ int32_t check_net_health(void *pTimerData)
 	{
 		func_net_close(pHeartbeat->nSessionID);
 	}
+    else
+    {
+        send_ping(pHeartbeat->nSessionID);
+        pHeartbeat->nMissCount++;
+    }
 	return 0;
 }
 
