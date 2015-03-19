@@ -47,6 +47,7 @@ struct NetContext
 
 struct HeartbeatTimerData
 {
+	uint32_t			nUin;
 	SessionID			nSessionID;
 	int32_t				nMissCount;
 };
