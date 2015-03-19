@@ -118,6 +118,7 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
+	pTimerData->nUin = 0;
 	pTimerData->nSessionID = nSessionID;
     pTimerData->nMissCount = 0;
 
@@ -198,7 +199,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	uint8_t szPacket[MAX_PACKET_SIZE];
 	uint16_t body_size;
-	uint8_t head_size = event_head_size();
+	uint16_t head_size = event_head_size();
 
 	if(head_size < nBytes)
 	{
@@ -221,6 +222,25 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	if(msgid == NETEVT_PONG)
 	{
 		return recv_pong(nSessionID);
+	}
+	else if((msgid == MSG_VERIFY_CODE_RESP) || (msgid == MSG_USER_LOGIN_RESP))
+	{
+		offset = event_head_size();
+		uint8_t result = 0;
+		decode_uint8(szPacket, packet_size, &offset, &result);
+		if(result == 0)
+		{
+			offset = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t);
+			uint32_t src_uin = 0;
+			decode_uint32(szPacket, packet_size, &offset, &src_uin);
+
+			NetTimer *net_timer = net_find_timer(nSessionID);
+			if(net_timer != NULL)
+			{
+				struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)(net_timer->pTimerData);
+				pTimerData->nUin = src_uin;
+			}
+		}
 	}
 	else
 	{
