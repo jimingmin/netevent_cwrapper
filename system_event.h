@@ -35,6 +35,11 @@
 //pong包
 #define NETEVT_PONG					NETEVT_BASE + 2
 
+//验证相应包
+#define MSG_VERIFY_CODE_RESP		5
+//登录相应包
+#define MSG_USER_LOGIN_RESP			11
+
 struct event_head
 {
 	uint16_t		total_size;
