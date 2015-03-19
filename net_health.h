@@ -11,7 +11,7 @@
 #include "../netevent/net_typedef.h"
 #include "net_ctype.h"
 
-int32_t send_ping(SessionID nSessionID);
+int32_t send_ping(SessionID nSessionID, uint32_t uin);
 
 int32_t recv_pong(SessionID nSessionID);
 
