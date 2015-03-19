@@ -117,13 +117,6 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	offset = 0;
 	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
 
-	struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
-	pTimerData->nUin = 0;
-	pTimerData->nSessionID = nSessionID;
-    pTimerData->nMissCount = 0;
-
-	net_create_timer(check_net_health, pTimerData, 45, 1);
-
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
 
@@ -234,12 +227,12 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 			uint32_t src_uin = 0;
 			decode_uint32(szPacket, packet_size, &offset, &src_uin);
 
-			NetTimer *net_timer = net_find_timer(nSessionID);
-			if(net_timer != NULL)
-			{
-				struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)(net_timer->pTimerData);
-				pTimerData->nUin = src_uin;
-			}
+			struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
+			pTimerData->nUin = src_uin;
+			pTimerData->nSessionID = nSessionID;
+		    pTimerData->nMissCount = 0;
+
+			net_create_timer(check_net_health, pTimerData, 45, 1);
 		}
 	}
 	else
