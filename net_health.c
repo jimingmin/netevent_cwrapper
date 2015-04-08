@@ -11,6 +11,9 @@
 #include "system_event.h"
 #include "event_format.h"
 #include "net_interface.h"
+#include "net_extern.h"
+
+extern struct NetContext *g_pNetContext;
 
 int32_t send_ping(SessionID nSessionID, uint32_t uin)
 {
@@ -28,8 +31,8 @@ int32_t send_ping(SessionID nSessionID, uint32_t uin)
 	uint32_t offset = 0;
 	encode_event_head(szPacket, sizeof(szPacket), &offset, &head);
 
-	encode_uint32(szPacket, sizeof(szPacket), &offset, uin);
-	encode_uint32(szPacket, sizeof(szPacket), &offset, (uint32_t)now);
+	encode_uint32_t(szPacket, sizeof(szPacket), &offset, uin);
+	encode_uint32_t(szPacket, sizeof(szPacket), &offset, (uint32_t)now);
 
 	return func_net_write(nSessionID, szPacket, offset);
 }
@@ -52,10 +55,14 @@ int32_t check_net_health(void *pTimerData)
 	{
 		func_net_close(pHeartbeat->nSessionID);
 	}
-    else
+   else
     {
-        send_ping(pHeartbeat->nSessionID, pHeartbeat->nUin);
-        pHeartbeat->nMissCount++;
+	   time_t now = time(NULL);
+	   if((get_last_send_time(g_pNetContext->pNetHandler, pHeartbeat->nSessionID) + 30) < now)
+	   {
+		   send_ping(pHeartbeat->nSessionID, pHeartbeat->nUin);
+			pHeartbeat->nMissCount++;
+	   }
     }
 	return 0;
 }

@@ -140,3 +140,14 @@ int32_t net_error_wrapper(SessionID nSessionID, int32_t nErrorID)
 	return GetNetFuncEntry()->func_net_error(nSessionID, nErrorID);
 }
 
+int64_t get_last_recv_time_wrapper(struct CNetHandler *pNetHandler, SessionID nSessionID)
+{
+	return get_last_recv_time(pNetHandler, nSessionID);
+}
+
+int64_t get_last_send_time_wrapper(struct CNetHandler *pNetHandler, SessionID nSessionID)
+{
+	return get_last_send_time(pNetHandler, nSessionID);
+}
+
+
