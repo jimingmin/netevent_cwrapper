@@ -12,7 +12,7 @@
 #include "list.h"
 #include "lock.h"
 
-#define MAX_PACKET_SIZE		64 * 1024
+#define MAX_PACKET_SIZE		(64 * 1024 - 1)
 
 struct PacketList
 {
@@ -39,7 +39,7 @@ struct NetContext
 	int32_t				nIsStop;
 	LOCK_HANDLE			stSendLock;
 	struct list_head	*pSendList;
-	LOCK_HANDLE			stRecvLock;
+//	LOCK_HANDLE			stRecvLock;
 	struct list_head	*pRecvList;
 	LOCK_HANDLE			stServerLock;
 	struct list_head	*pServerList;
@@ -51,5 +51,13 @@ struct HeartbeatTimerData
 	SessionID			nSessionID;
 	int32_t				nMissCount;
 };
+
+enum enmSyncFlag
+{
+	enmSyncFlag_Sync		= 0x00,
+	enmSyncFlag_Fin		= 0x01,
+} SyncFlag;
+
+typedef int32_t (*sync_msg_proc)(uint32_t sessionid, uint8_t *buf, int32_t buf_size);
 
 #endif /* NET_CTYPE_H_ */

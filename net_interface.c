@@ -16,8 +16,11 @@
 #include "event_format.h"
 #include "net_health.h"
 #include "net_timer.h"
+#include "msg_hook.h"
 
 extern struct NetContext *g_pNetContext;
+extern LOCK_HANDLE g_hRecvLock;
+
 static char g_arrSSKey[16] = {'v', 'd', 'c', '$', 'a', 'u', 't', 'h', '@', '1', '7','9','.', 'c', 'o', 'm'};
 
 struct NetFuncEntry *regist_interface(callback_net_parser func_net_parser, callback_net_accepted func_net_accepted,
@@ -52,7 +55,7 @@ int32_t func_net_parser(const uint8_t arrBuf[], const uint32_t nBufSize, uint8_t
 	uint16_t nTotalSize = 0;
 	uint32_t nOffset = 0;
 	int32_t nRet = 0;
-	nRet = decode_uint16((unsigned char *)arrBuf, nBufSize, &nOffset, &nTotalSize);
+	nRet = decode_uint16_t((unsigned char *)arrBuf, nBufSize, &nOffset, &nTotalSize);
 	if(nRet < 0)
 	{
 		return 0;
@@ -89,7 +92,7 @@ int32_t func_net_accepted(SessionID nSessionID, char *pPeerAddress, uint16_t nPe
 
 	head.total_size = offset;
 	offset = 0;
-	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
@@ -115,7 +118,7 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 
 	head.total_size = offset;
 	offset = 0;
-	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
@@ -140,7 +143,7 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 
 	head.total_size = offset;
 	offset = 0;
-	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
@@ -150,21 +153,17 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 	struct list_head *pos, *backup;
 	struct PacketList *packet;
 
-    if(g_pNetContext == NULL)
+	lock(g_hRecvLock);
+
+   if(g_pNetContext == NULL)
     {
-        return 0;
+	   unlock(g_hRecvLock);
+	   return 0;
     }
-    
-	if(list_empty(g_pNetContext->pRecvList))
-	{
-		return 0;
-	}
-
-	lock(g_pNetContext->stRecvLock);
 
 	if(list_empty(g_pNetContext->pRecvList))
 	{
-		unlock(g_pNetContext->stRecvLock);
+		unlock(g_hRecvLock);
 		return 0;
 	}
 
@@ -183,7 +182,7 @@ int32_t func_net_read(SessionID *pSessionID, uint8_t *pData, int32_t *pBytes)
 	free(packet->pPacketData);
 	free(packet);
 
-	unlock(g_pNetContext->stRecvLock);
+	unlock(g_hRecvLock);
 
 	return packet->nPacketSize;
 }
@@ -210,7 +209,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	uint32_t offset = sizeof(uint16_t);
 	uint16_t msgid = 0;
-	decode_uint16(szPacket, packet_size, &offset, &msgid);
+	decode_uint16_t(szPacket, packet_size, &offset, &msgid);
 	//如果是pong包
 	if(msgid == NETEVT_PONG)
 	{
@@ -220,28 +219,31 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	{
 		offset = event_head_size();
 		uint8_t result = 0;
-		decode_uint8(szPacket, packet_size, &offset, &result);
+		decode_uint8_t(szPacket, packet_size, &offset, &result);
 		if(result == 0)
 		{
 			offset = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t);
 			uint32_t src_uin = 0;
-			decode_uint32(szPacket, packet_size, &offset, &src_uin);
+			decode_uint32_t(szPacket, packet_size, &offset, &src_uin);
 
 			struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
 			pTimerData->nUin = src_uin;
 			pTimerData->nSessionID = nSessionID;
-		    pTimerData->nMissCount = 0;
+		   pTimerData->nMissCount = 0;
 
 			net_create_timer(check_net_health, pTimerData, 45, 1);
 		}
 	}
-	else
+
+	offset = 0;
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, packet_size);
+
+	if(!msg_hook(msgid, szPacket, packet_size))
 	{
-		offset = 0;
-		encode_uint16(szPacket, sizeof(szPacket), &offset, packet_size);
+		return push_read_queue(nSessionID, szPacket, packet_size);
 	}
 
-	return push_read_queue(nSessionID, szPacket, packet_size);
+	return 0;
 }
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
@@ -270,7 +272,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	memcpy(&packet->pPacketData[head_size], szBody, body_size);
 
 	packet->nPacketSize = head_size + body_size;
-	encode_uint16(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
+	encode_uint16_t(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
 
 	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
@@ -310,7 +312,7 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 
 	head.total_size = offset;
 	offset = 0;
-	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	net_destroy_timer_by_sessionid(nSessionID);
 
@@ -337,7 +339,7 @@ int32_t func_net_error(SessionID nSessionID, int32_t nErrorID)
 
 	head.total_size = offset;
 	offset = 0;
-	encode_uint16(szPacket, sizeof(szPacket), &offset, head.total_size);
+	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
 }
@@ -363,9 +365,9 @@ int32_t push_read_queue(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	memcpy(packet->pPacketData, pData, nBytes);
 	packet->nPacketSize = nBytes;
 
-	lock(g_pNetContext->stRecvLock);
+	lock(g_hRecvLock);
 	list_add_tail(&packet->list, g_pNetContext->pRecvList);
-	unlock(g_pNetContext->stRecvLock);
+	unlock(g_hRecvLock);
 
 	return nBytes;
 }
