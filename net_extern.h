@@ -43,3 +43,7 @@ extern int32_t net_write_completed(struct IIOSession *pIoSession, callback_net_w
 extern int32_t net_close(struct CNetHandler *pNetHandler, SessionID nSessionID);
 
 extern int32_t net_close_completed(struct IIOSession *pIoSession, callback_net_closed func_net_closed);
+
+extern int64_t get_last_recv_time(struct CNetHandler *pNetHandler, SessionID nSessionID);
+
+extern int64_t get_last_send_time(struct CNetHandler *pNetHandler, SessionID nSessionID);
