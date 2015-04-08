@@ -45,4 +45,7 @@ int32_t net_close_completed_wrapper(SessionID nSessionID, char *pPeerAddress, ui
 
 int32_t net_error_wrapper(SessionID nSessionID, int32_t nErrorID);
 
+int64_t get_last_recv_time_wrapper(struct CNetHandler *pNetHandler, SessionID nSessionID);
+
+int64_t get_last_send_time_wrapper(struct CNetHandler *pNetHandler, SessionID nSessionID);
 
