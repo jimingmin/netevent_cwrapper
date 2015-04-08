@@ -38,7 +38,7 @@
 //验证相应包
 #define MSG_VERIFY_CODE_RESP		5
 //登录相应包
-#define MSG_USER_LOGIN_RESP			11
+#define MSG_USER_LOGIN_RESP		11
 
 struct event_head
 {
