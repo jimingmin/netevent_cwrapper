@@ -12,11 +12,15 @@
 #include "net_interface.h"
 #include "net_timer.h"
 #include "list.h"
+#include "msg_hook.h"
 
 EXPORT struct NetContext *g_pNetContext;
+EXPORT LOCK_HANDLE g_hRecvLock;
 
 int32_t net_init()
 {
+	srand( (unsigned int)time(0) );
+
 	g_pNetContext = (struct NetContext *)malloc(sizeof(struct NetContext));
 
 	//注册回调接口
@@ -38,7 +42,11 @@ int32_t net_init()
 	g_pNetContext->pSendList = (struct list_head *)malloc(sizeof(struct list_head));
 	INIT_LIST_HEAD(g_pNetContext->pSendList);
 
-	g_pNetContext->stRecvLock = create_lock();
+	if(g_hRecvLock == NULL)
+	{
+		g_hRecvLock = create_lock();
+	}
+
 	//初始化接收链表
 	g_pNetContext->pRecvList = (struct list_head *)malloc(sizeof(struct list_head));
 	INIT_LIST_HEAD(g_pNetContext->pRecvList);
@@ -46,9 +54,11 @@ int32_t net_init()
 	g_pNetContext->stServerLock = create_lock();
 	//初始化服务器列表
 	g_pNetContext->pServerList = (struct list_head *)malloc(sizeof(struct list_head));
-	INIT_LIST_HEAD(g_pNetContext->pServerList);\
+	INIT_LIST_HEAD(g_pNetContext->pServerList);
 
 	net_timer_init();
+
+	init_msg_hook();
 
 	return 0;
 }
