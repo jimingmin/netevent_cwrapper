@@ -63,12 +63,12 @@ void uninit_msg_hook()
 {
 }
 
-int32_t msg_hook(int32_t msgid, uint8_t *buf, int32_t buf_size)
+int32_t msg_hook(int32_t msgid, SessionID nSessionID, uint8_t *buf, int32_t buf_size)
 {
 	sync_msg_proc proc = get_msg_hook(msgid);
 	if(proc != NULL)
 	{
-		proc(msgid, buf, buf_size);
+		proc(nSessionID, buf, buf_size);
 		return 1;
 	}
 	return 0;
@@ -116,7 +116,7 @@ int32_t handle_statussync_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_siz
 	struct event_head send_head;
 	struct msgsync_req send_req;
 
-	uint8_t send_buf[MAX_PACKET_SIZE];
+	uint8_t send_buf[1024];
 
 	clear_msg_list();
 
@@ -124,7 +124,10 @@ int32_t handle_statussync_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_siz
 	decode_event_head(buf, buf_size, &offset, &head);
 	decode_statussync_noti(buf, buf_size, &offset, &noti);
 
-	send_head.src_uin = head.src_uin;
+    send_head.event_id = MSGID_MSGSYNC_REQ;
+    send_head.seq = 0;
+	send_head.src_uin = head.dst_uin;
+    send_head.dst_uin = 0;
 
 	send_req.sync_seq= (g_syncctx->sync_seq + (rand() % g_syncctx->sync_step) + 1);
 
@@ -146,7 +149,7 @@ int32_t handle_msgpush_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_size)
 	struct event_head send_head;
 	struct msgfinack_req send_req;
 
-	uint8_t send_buf[MAX_PACKET_SIZE];
+	uint8_t send_buf[1024];
 
 	struct PacketList *packet;
 
@@ -167,6 +170,10 @@ int32_t handle_msgpush_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_size)
 	{
 		offset = 0;
 
+        send_head.event_id = MSGID_MSGFINACK_REQ;
+        send_head.seq = 0;
+        send_head.src_uin = head.dst_uin;
+        send_head.dst_uin = 0;
 		encode_event_head(send_buf, sizeof(send_buf), &offset, &send_head);
 
 		send_req.sync_count = g_syncctx->msg_count;

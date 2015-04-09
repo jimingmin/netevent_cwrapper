@@ -229,7 +229,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 			struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
 			pTimerData->nUin = src_uin;
 			pTimerData->nSessionID = nSessionID;
-		   pTimerData->nMissCount = 0;
+		    pTimerData->nMissCount = 0;
 
 			net_create_timer(check_net_health, pTimerData, 45, 1);
 		}
@@ -238,7 +238,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	offset = 0;
 	encode_uint16_t(szPacket, sizeof(szPacket), &offset, packet_size);
 
-	if(!msg_hook(msgid, szPacket, packet_size))
+	if(!msg_hook(msgid, nSessionID, szPacket, packet_size))
 	{
 		return push_read_queue(nSessionID, szPacket, packet_size);
 	}
@@ -250,7 +250,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	uint8_t head_size = 0;
 	struct PacketList *packet = NULL;
-	uint8_t szBody[MAX_PACKET_SIZE];
+	static uint8_t szBody[MAX_PACKET_SIZE];
 	uint16_t body_size = 0;
 	uint32_t offset = 0;
 	head_size = event_head_size();

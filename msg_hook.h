@@ -15,7 +15,7 @@ int32_t init_msg_hook();
 
 void uninit_msg_hook();
 
-int32_t msg_hook(int32_t msgid, uint8_t *buf, int32_t buf_size);
+int32_t msg_hook(int32_t msgid, SessionID nSessionID, uint8_t *buf, int32_t buf_size);
 
 sync_msg_proc get_msg_hook(int32_t msgid);
 
