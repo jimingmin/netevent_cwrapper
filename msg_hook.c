@@ -61,6 +61,18 @@ int32_t init_msg_hook()
 
 void uninit_msg_hook()
 {
+	clear_msg_list();
+
+	if(g_syncctx != NULL)
+	{
+		if(g_syncctx->sync_msg_list != NULL)
+		{
+			free(g_syncctx->sync_msg_list);
+		}
+
+		free(g_syncctx);
+		g_syncctx = NULL;
+	}
 }
 
 int32_t msg_hook(int32_t msgid, SessionID nSessionID, uint8_t *buf, int32_t buf_size)
