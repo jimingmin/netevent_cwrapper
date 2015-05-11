@@ -20,6 +20,7 @@
 
 extern struct NetContext *g_pNetContext;
 extern LOCK_HANDLE g_hRecvLock;
+extern uint32_t g_nMagicNum;
 
 static char g_arrSSKey[16] = {'v', 'd', 'c', '$', 'a', 'u', 't', 'h', '@', '1', '7','9','.', 'c', 'o', 'm'};
 
@@ -248,15 +249,24 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
+	static uint8_t szRawData[MAX_PACKET_SIZE];
+	static uint8_t szBody[MAX_PACKET_SIZE];
+
 	uint8_t head_size = 0;
 	struct PacketList *packet = NULL;
-	static uint8_t szBody[MAX_PACKET_SIZE];
-	uint16_t body_size = 0;
+	int32_t nRawDataSize = nBytes;
 	uint32_t offset = 0;
+	uint16_t body_size = 0;
+
+	memcpy(szRawData, pData, nBytes);
+	++g_nMagicNum;
+	memcpy(&szRawData[nRawDataSize], &g_nMagicNum, sizeof(g_nMagicNum));
+	nRawDataSize += sizeof(g_nMagicNum);
+
 	head_size = event_head_size();
 	if(head_size < nBytes)
 	{
-		body_size = func_encrypt((char *)&pData[head_size], nBytes - head_size,
+		body_size = func_encrypt((char *)&szRawData[head_size], nRawDataSize - head_size,
 				(char *)szBody, sizeof(szBody), g_arrSSKey);
 		if(body_size <= 0)
 		{
@@ -268,7 +278,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	packet->pPacketData = (uint8_t *)malloc(head_size + body_size);
 
 	packet->nSessionID = nSessionID;
-	memcpy(packet->pPacketData, pData, head_size);
+	memcpy(packet->pPacketData, szRawData, head_size);
 	memcpy(&packet->pPacketData[head_size], szBody, body_size);
 
 	packet->nPacketSize = head_size + body_size;
