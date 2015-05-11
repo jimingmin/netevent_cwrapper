@@ -16,10 +16,13 @@
 
 EXPORT struct NetContext *g_pNetContext;
 EXPORT LOCK_HANDLE g_hRecvLock;
+EXPORT uint32_t g_nMagicNum;
+
+#define RANDOM_RANGE		1000000
 
 int32_t net_init()
 {
-	srand( (unsigned int)time(0) );
+	srand((unsigned int)time(0));
 
 	g_pNetContext = (struct NetContext *)malloc(sizeof(struct NetContext));
 
@@ -59,6 +62,8 @@ int32_t net_init()
 	net_timer_init();
 
 	init_msg_hook();
+
+	g_nMagicNum = rand() % RANDOM_RANGE + 1;
 
 	return 0;
 }
@@ -164,21 +169,21 @@ int32_t net_loop()
 
 void net_uninit()
 {
-	if(g_pNetContext == NULL)
+	if(g_pNetContext != NULL)
 	{
-		return;
+		destory_connector_wrapper(g_pNetContext->pConnector);
+		destory_acceptor_wrapper(g_pNetContext->pAcceptor);
+		uninit_context_wrapper(g_pNetContext->pNetHandler);
+		unregist_interface(g_pNetContext->pNetFuncEntry);
+
+		destory_lock(g_pNetContext->stServerLock);
+		destory_lock(g_pNetContext->stSendLock);
+
+		free(g_pNetContext);
+		g_pNetContext = NULL;
 	}
 
-	destory_connector_wrapper(g_pNetContext->pConnector);
-	destory_acceptor_wrapper(g_pNetContext->pAcceptor);
-	uninit_context_wrapper(g_pNetContext->pNetHandler);
-	unregist_interface(g_pNetContext->pNetFuncEntry);
-
-	destory_lock(g_pNetContext->stServerLock);
-	destory_lock(g_pNetContext->stSendLock);
-
-	free(g_pNetContext);
-	g_pNetContext = NULL;
-
 	net_timer_uninit();
+
+	uninit_msg_hook();
 }
