@@ -7,12 +7,14 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "net_loop.h"
 #include "net_func_wrapper.h"
 #include "net_interface.h"
 #include "net_timer.h"
 #include "list.h"
 #include "msg_hook.h"
+#include "logger_extern.h"
 
 EXPORT struct NetContext *g_pNetContext;
 EXPORT LOCK_HANDLE g_hRecvLock;
@@ -20,11 +22,25 @@ EXPORT uint32_t g_nMagicNum;
 
 #define RANDOM_RANGE		1000000
 
-int32_t net_init()
+int32_t net_init(const char *log_dir, const char *log_name)
 {
 	srand((unsigned int)time(0));
 
 	g_pNetContext = (struct NetContext *)malloc(sizeof(struct NetContext));
+
+	if(log_dir != NULL)
+	{
+		g_pNetContext->pLogDir = (char *)malloc(strlen(log_dir) + 1);
+		strcpy(g_pNetContext->pLogDir, log_dir);
+		g_pNetContext->pLogDir[strlen(log_dir)] = '\0';
+
+		g_pNetContext->pLogName = (char *)malloc(strlen(log_name) + 1);
+		strcpy(g_pNetContext->pLogName, log_name);
+		g_pNetContext->pLogName[strlen(log_name)] = '\0';
+
+		set_log_dir(log_dir);
+		start_log_thread();
+	}
 
 	//注册回调接口
 	g_pNetContext->pNetFuncEntry = regist_interface(func_net_parser, func_net_accepted, func_net_connected,
@@ -178,6 +194,20 @@ void net_uninit()
 
 		destory_lock(g_pNetContext->stServerLock);
 		destory_lock(g_pNetContext->stSendLock);
+
+		if(g_pNetContext->pLogDir != NULL)
+		{
+			free(g_pNetContext->pLogDir);
+			g_pNetContext->pLogDir = NULL;
+
+			stop_log_thread();
+		}
+
+		if(g_pNetContext->pLogName != NULL)
+		{
+			free(g_pNetContext->pLogName);
+			g_pNetContext->pLogName = NULL;
+		}
 
 		free(g_pNetContext);
 		g_pNetContext = NULL;

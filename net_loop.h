@@ -10,7 +10,7 @@
 
 //extern struct NetContext *g_pNetContext;
 
-int32_t net_init();
+int32_t net_init(const char *log_dir, const char *log_name);
 
 int32_t net_connect_server();
 
