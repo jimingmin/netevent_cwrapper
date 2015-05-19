@@ -16,7 +16,7 @@
 #define MSGID_STATUSSYNC_NOTI		60200
 struct statussync_noti
 {
-
+	uint8_t				placeholder[0];
 };
 
 //消息同步请求
