@@ -60,8 +60,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="common.lib netevent.lib"
+				AdditionalDependencies="common.lib netevent.lib logger.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -171,6 +172,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\event_dump.c"
+			>
+		</File>
+		<File
+			RelativePath=".\event_dump.h"
+			>
+		</File>
+		<File
 			RelativePath=".\event_format.c"
 			>
 		</File>
@@ -191,6 +200,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\logger_extern.h"
+			>
+		</File>
+		<File
+			RelativePath=".\msg_event.h"
+			>
+		</File>
+		<File
+			RelativePath=".\msg_hook.c"
+			>
+		</File>
+		<File
+			RelativePath=".\msg_hook.h"
+			>
+		</File>
+		<File
 			RelativePath=".\net_ctype.h"
 			>
 		</File>
@@ -207,6 +232,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\net_health.c"
+			>
+		</File>
+		<File
+			RelativePath=".\net_health.h"
+			>
+		</File>
+		<File
 			RelativePath=".\net_interface.c"
 			>
 		</File>
@@ -220,6 +253,14 @@
 		</File>
 		<File
 			RelativePath=".\net_loop.h"
+			>
+		</File>
+		<File
+			RelativePath=".\net_timer.c"
+			>
+		</File>
+		<File
+			RelativePath=".\net_timer.h"
 			>
 		</File>
 		<File
