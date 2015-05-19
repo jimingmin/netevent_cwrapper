@@ -17,6 +17,7 @@
 #include "net_health.h"
 #include "net_timer.h"
 #include "msg_hook.h"
+#include "event_dump.h"
 
 extern struct NetContext *g_pNetContext;
 extern LOCK_HANDLE g_hRecvLock;
@@ -105,6 +106,8 @@ int32_t func_net_connected(SessionID nSessionID, char *pPeerAddress, uint16_t nP
 	uint32_t offset = 0;
 	uint8_t szPacket[MAX_PACKET_SIZE];
 
+	event_dump_connected(g_pNetContext->pLogName, nSessionID, pPeerAddress, nPeerPort);
+
 	head.event_id = SYSEVT_CONNECTED;
 	head.seq = 0;
 	head.src_uin = 0;
@@ -130,6 +133,8 @@ int32_t func_net_connect_timeout(SessionID nSessionID, char *pPeerAddress, uint1
 	struct event_connecttimeout timeout;
 	uint32_t offset = 0;
 	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	event_dump_connect_timeout(g_pNetContext->pLogName, nSessionID, pPeerAddress, nPeerPort);
 
 	head.event_id = SYSEVT_CONNECTTIMEOUT;
 	head.seq = 0;
@@ -192,6 +197,11 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
 	uint8_t szPacket[MAX_PACKET_SIZE];
 	uint16_t body_size;
+	uint16_t packet_size;
+	uint32_t offset;
+	uint8_t result;
+	struct HeartbeatTimerData *pTimerData;
+	struct event_head head;
 	uint16_t head_size = event_head_size();
 
 	if(head_size < nBytes)
@@ -206,40 +216,38 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	memcpy(szPacket, pData, head_size);
 
-	uint16_t packet_size = head_size + body_size;
+	packet_size = (head_size + body_size);
 
-	uint32_t offset = sizeof(uint16_t);
-	uint16_t msgid = 0;
-	decode_uint16_t(szPacket, packet_size, &offset, &msgid);
+	offset = sizeof(uint16_t);
+	decode_event_head(szPacket, packet_size, &offset, &head);
+
+	head.total_size = packet_size;
+	event_dump_head(g_pNetContext->pLogName, "recv", &head);
 	//如果是pong包
-	if(msgid == NETEVT_PONG)
+	if(head.event_id == NETEVT_PONG)
 	{
 		return recv_pong(nSessionID);
 	}
-	else if((msgid == MSG_VERIFY_CODE_RESP) || (msgid == MSG_USER_LOGIN_RESP))
+	else if((head.event_id == MSG_VERIFY_CODE_RESP) || (head.event_id == MSG_USER_LOGIN_RESP))
 	{
 		offset = event_head_size();
-		uint8_t result = 0;
+		result = 0;
 		decode_uint8_t(szPacket, packet_size, &offset, &result);
 		if(result == 0)
 		{
-			offset = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t);
-			uint32_t src_uin = 0;
-			decode_uint32_t(szPacket, packet_size, &offset, &src_uin);
-
-			struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
-			pTimerData->nUin = src_uin;
+			pTimerData = (struct HeartbeatTimerData *)malloc(sizeof(struct HeartbeatTimerData));
+			pTimerData->nUin = head.src_uin;
 			pTimerData->nSessionID = nSessionID;
 		    pTimerData->nMissCount = 0;
 
-			net_create_timer(check_net_health, pTimerData, 45, 1);
+			net_create_timer(check_net_health, pTimerData, 60, 1);
 		}
 	}
 
 	offset = 0;
 	encode_uint16_t(szPacket, sizeof(szPacket), &offset, packet_size);
 
-	if(!msg_hook(msgid, nSessionID, szPacket, packet_size))
+	if(!msg_hook(head.event_id, nSessionID, szPacket, packet_size))
 	{
 		return push_read_queue(nSessionID, szPacket, packet_size);
 	}
@@ -252,8 +260,9 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	static uint8_t szRawData[MAX_PACKET_SIZE];
 	static uint8_t szBody[MAX_PACKET_SIZE];
 
-	uint8_t head_size = 0;
-	struct PacketList *packet = NULL;
+	uint8_t head_size;
+	struct PacketList *packet;
+	struct event_head head;
 	int32_t nRawDataSize = nBytes;
 	uint32_t offset = 0;
 	uint16_t body_size = 0;
@@ -284,6 +293,8 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	packet->nPacketSize = head_size + body_size;
 	encode_uint16_t(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
 
+	event_dump_head(g_pNetContext->pLogName, "send", &head);
+
 	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
 	unlock(g_pNetContext->stSendLock);
@@ -298,6 +309,7 @@ int32_t func_net_writen(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 int32_t func_net_close(SessionID nSessionID)
 {
+	event_dump_closing(g_pNetContext->pLogName, nSessionID);
 	return net_close_wrapper(g_pNetContext->pNetHandler, nSessionID);
 }
 
@@ -307,6 +319,8 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	struct event_closed closed;
 	uint32_t offset = 0;
 	uint8_t szPacket[MAX_PACKET_SIZE];
+
+	event_dump_closed(g_pNetContext->pLogName, nSessionID, pPeerAddress, nPeerPort);
 
 	head.event_id = SYSEVT_CLOSED;
 	head.seq = 0;
@@ -364,6 +378,7 @@ int32_t func_net_connect(char *addr, uint16_t port)
 	list_add_tail(&pServerList->list, g_pNetContext->pServerList);
 	unlock(g_pNetContext->stServerLock);
 
+	event_dump_connecting(g_pNetContext->pLogName, addr, port);
 	return 0;
 }
 
