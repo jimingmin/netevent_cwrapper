@@ -43,6 +43,8 @@ struct NetContext
 	struct list_head	*pRecvList;
 	LOCK_HANDLE			stServerLock;
 	struct list_head	*pServerList;
+	char				*pLogDir;
+	char				*pLogName;
 };
 
 struct HeartbeatTimerData
