@@ -32,13 +32,13 @@ EXPORT struct sync_context *g_syncctx;
 
 int32_t init_msg_hook()
 {
+	int32_t proc_count = 0;
 	g_syncctx = (struct sync_context *)malloc(sizeof(struct sync_context));
 	g_syncctx->proc_count = 0;
 	g_syncctx->msg_count = 0;
 	g_syncctx->sync_seq = 0;
 	g_syncctx->sync_step = 1000;
 
-	int32_t proc_count = 0;
 	g_syncctx->msgid_array[proc_count] = MSGID_STATUSSYNC_NOTI;
 	g_syncctx->proc_array[proc_count] = handle_statussync_noti;
 	proc_count++;

@@ -12,15 +12,16 @@
 #include "event_format.h"
 #include "net_interface.h"
 #include "net_extern.h"
+#include "logger_extern.h"
 
 extern struct NetContext *g_pNetContext;
 
 int32_t send_ping(SessionID nSessionID, uint32_t uin)
 {
-	time_t now;
-	time(&now);
-
 	uint8_t szPacket[MAX_PACKET_SIZE];
+	time_t now;
+	uint32_t offset = 0;
+
 	struct event_head head;
 	head.total_size = 0;
 	head.event_id = NETEVT_PING;
@@ -28,9 +29,9 @@ int32_t send_ping(SessionID nSessionID, uint32_t uin)
 	head.src_uin = uin;
 	head.dst_uin = 0;
 
-	uint32_t offset = 0;
 	encode_event_head(szPacket, sizeof(szPacket), &offset, &head);
 
+	time(&now);
 	encode_uint32_t(szPacket, sizeof(szPacket), &offset, uin);
 	encode_uint32_t(szPacket, sizeof(szPacket), &offset, (uint32_t)now);
 
@@ -53,6 +54,10 @@ int32_t check_net_health(void *pTimerData)
 	struct HeartbeatTimerData *pHeartbeat = (struct HeartbeatTimerData *)pTimerData;
 	if(pHeartbeat->nMissCount >= 3)
 	{
+		if(g_pNetContext->pLogName != NULL)
+		{
+			write_debug_log(g_pNetContext->pLogName, "heartbeat is miss more than 3");
+		}
 		func_net_close(pHeartbeat->nSessionID);
 	}
    else

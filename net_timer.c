@@ -39,15 +39,16 @@ int32_t net_timer_uninit()
 
 int32_t net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop)
 {
+	NetTimer *net_timer;
 	time_t now;
 	time(&now);
 
-	NetTimer *net_timer = (NetTimer *)malloc(sizeof(NetTimer));
+	net_timer = (NetTimer *)malloc(sizeof(NetTimer));
 	net_timer->Proc = Proc;
 	net_timer->pTimerData = pTimerData;
 	net_timer->nCycleTime = nCycleTime;
 	net_timer->bIsLoop = bIsLoop;
-	net_timer->nEndTime = now + nCycleTime;
+	net_timer->nEndTime = (int32_t)(now + nCycleTime);
 
 	net_insert_timer(net_timer);
 
@@ -103,12 +104,13 @@ NetTimer *net_find_timer(SessionID nSessionID)
 {
 	struct list_head *pos, *backup;
 	NetTimer *find_net_timer;
+	struct HeartbeatTimerData *pTimerData;
 
 	find_net_timer = NULL;
 	list_for_each_safe(pos, backup, g_pNetTimerList)
 	{
 		find_net_timer = list_entry(pos, NetTimer, list);
-		struct HeartbeatTimerData *pTimerData = (struct HeartbeatTimerData *)(find_net_timer->pTimerData);
+		pTimerData = (struct HeartbeatTimerData *)(find_net_timer->pTimerData);
 		if(pTimerData->nSessionID == nSessionID)
 		{
 			break;
@@ -120,15 +122,15 @@ NetTimer *net_find_timer(SessionID nSessionID)
 
 int32_t net_loop_timer()
 {
+	struct list_head *pos, *backup;
+	NetTimer *net_timer;
+	time_t now;
+
 	if(list_empty(g_pNetTimerList))
 	{
 		return 0;
 	}
 
-	struct list_head *pos, *backup;
-	NetTimer *net_timer;
-
-	time_t now;
 	time(&now);
 
 	list_for_each_safe(pos, backup, g_pNetTimerList)
@@ -143,7 +145,7 @@ int32_t net_loop_timer()
 
 		if(net_timer->bIsLoop != 0)
 		{
-			net_timer->nEndTime = net_timer->nCycleTime + now;
+			net_timer->nEndTime = (int32_t)(net_timer->nCycleTime + now);
 		}
 		else
 		{
