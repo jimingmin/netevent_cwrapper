@@ -14,6 +14,7 @@
 #include "event_format.h"
 #include "list.h"
 #include "net_interface.h"
+#include "event_dump.h"
 
 #define MAX_MSG_PROC_SIZE		64
 
@@ -29,6 +30,8 @@ struct sync_context
 };
 
 EXPORT struct sync_context *g_syncctx;
+
+extern struct NetContext *g_pNetContext;
 
 int32_t init_msg_hook()
 {
@@ -156,6 +159,7 @@ int32_t handle_msgpush_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_size)
 	uint32_t offset;
 
 	struct event_head head;
+    struct event_head msg_head;
 	struct msgpush_noti noti;
 
 	struct event_head send_head;
@@ -175,6 +179,10 @@ int32_t handle_msgpush_noti(uint32_t sessionid, uint8_t *buf, int32_t buf_size)
 	memcpy(packet->pPacketData, noti.m_arrMsg, noti.m_nMsgSize);
 	packet->nPacketSize = noti.m_nMsgSize;
 
+    offset = 0;
+    decode_event_head(packet->pPacketData, packet->nPacketSize, &offset, &msg_head);
+    event_dump_head(g_pNetContext->pLogName, "recv", &msg_head);
+    
 	list_add_tail(&packet->list, g_syncctx->sync_msg_list);
 	++g_syncctx->msg_count;
 
