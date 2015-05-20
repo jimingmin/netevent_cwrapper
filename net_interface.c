@@ -218,7 +218,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	packet_size = (head_size + body_size);
 
-	offset = sizeof(uint16_t);
+	offset = 0;
 	decode_event_head(szPacket, packet_size, &offset, &head);
 
 	head.total_size = packet_size;
@@ -293,6 +293,8 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 	packet->nPacketSize = head_size + body_size;
 	encode_uint16_t(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
 
+    offset = 0;
+    decode_event_head(packet->pPacketData, packet->nPacketSize, &offset, &head);
 	event_dump_head(g_pNetContext->pLogName, "send", &head);
 
 	lock(g_pNetContext->stSendLock);

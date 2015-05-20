@@ -1,6 +1,6 @@
 #include "event_dump.h"
 #include "logger_extern.h"
-#include "system_event.h"
+
 
 void event_dump_head(const char *log_name, const char *action, struct event_head *head)
 {

@@ -4,6 +4,7 @@
 #include "../common/common_typedef.h"
 #include "../netevent/net_typedef.h"
 #include "net_ctype.h"
+#include "system_event.h"
 
 void event_dump_head(const char *log_name, const char *action, struct event_head *head);
 
