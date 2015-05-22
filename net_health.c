@@ -56,7 +56,7 @@ int32_t check_net_health(void *pTimerData)
 	{
 		if(g_pNetContext->pLogName != NULL)
 		{
-			write_debug_log(g_pNetContext->pLogName, "heartbeat is miss more than 3");
+			write_debug_log(g_pNetContext->pLogName, "heartbeat is miss more than 3\n");
 		}
 		func_net_close(pHeartbeat->nSessionID);
 	}
