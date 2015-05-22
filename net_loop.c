@@ -81,6 +81,8 @@ int32_t net_init(const char *log_dir, const char *log_name)
 
 	g_nMagicNum = rand() % RANDOM_RANGE + 1;
 
+	dump_string("net init...");
+
 	return 0;
 }
 
@@ -124,9 +126,12 @@ int32_t net_start_server()
 
 int32_t net_stop()
 {
-    if (g_pNetContext != NULL) {
+    if (g_pNetContext != NULL)
+    {
         g_pNetContext->nIsStop = 1;
     }
+
+    dump_string("net stop...");
 	return 0;
 }
 
@@ -185,6 +190,7 @@ int32_t net_loop()
 
 void net_uninit()
 {
+	dump_string("net uninit...");
 	if(g_pNetContext != NULL)
 	{
 		destory_connector_wrapper(g_pNetContext->pConnector);
