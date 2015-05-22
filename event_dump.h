@@ -6,6 +6,8 @@
 #include "net_ctype.h"
 #include "system_event.h"
 
+void dump_string(char *log);
+
 void event_dump_head(const char *log_name, const char *action, struct event_head *head);
 
 void event_dump_connecting(const char *log_name, char *pPeerAddress, uint16_t nPeerPort);

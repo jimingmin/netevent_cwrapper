@@ -1,6 +1,15 @@
 #include "event_dump.h"
 #include "logger_extern.h"
 
+extern struct NetContext *g_pNetContext;
+
+void dump_string(char *log)
+{
+	if(g_pNetContext != NULL && g_pNetContext->pLogName != NULL)
+	{
+		write_debug_log(g_pNetContext->pLogName, "%s\n", log);
+	}
+}
 
 void event_dump_head(const char *log_name, const char *action, struct event_head *head)
 {
