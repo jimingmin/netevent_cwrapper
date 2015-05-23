@@ -210,6 +210,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 				(char *)&szPacket[head_size], sizeof(szPacket) - head_size, g_arrSSKey);
 		if(body_size <= 0)
 		{
+			dump_string("decrypt failed!");
 			return 0;
 		}
 	}
@@ -257,8 +258,8 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 {
-	static uint8_t szRawData[MAX_PACKET_SIZE];
-	static uint8_t szBody[MAX_PACKET_SIZE];
+	uint8_t szRawData[MAX_PACKET_SIZE];
+	uint8_t szBody[MAX_PACKET_SIZE];
 
 	uint8_t head_size;
 	struct PacketList *packet;
@@ -279,6 +280,7 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 				(char *)szBody, sizeof(szBody), g_arrSSKey);
 		if(body_size <= 0)
 		{
+			dump_string("encrypt failed!");
 			return 0;
 		}
 	}
@@ -333,13 +335,14 @@ int32_t func_net_closed(SessionID nSessionID, char *pPeerAddress, uint16_t nPeer
 	strcpy(closed.address, pPeerAddress);
 	closed.port = nPeerPort;
 
-	encode_event_head(szPacket, sizeof(szPacket) - offset, &offset, &head);
-	encode_event_closed(szPacket, sizeof(szPacket) - offset, &offset, &closed);
+	encode_event_head(szPacket, sizeof(szPacket), &offset, &head);
+	encode_event_closed(szPacket, sizeof(szPacket), &offset, &closed);
 
 	head.total_size = offset;
 	offset = 0;
 	encode_uint16_t(szPacket, sizeof(szPacket), &offset, head.total_size);
 
+	dump_string("stop health timer\n");
 	net_destroy_timer_by_sessionid(nSessionID);
 
 	return push_read_queue(nSessionID, szPacket, head.total_size);
