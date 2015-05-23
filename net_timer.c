@@ -56,7 +56,7 @@ NetTimer *net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime,
 	return net_timer;
 }
 
-int32_t net_destroy_timer(NetTimer *net_timer)
+int32_t net_deprecate_timer(NetTimer *net_timer)
 {
 	net_timer->bCanUse = 0;
 	//list_del(&net_timer->list);
@@ -67,12 +67,21 @@ int32_t net_destroy_timer(NetTimer *net_timer)
 	return 0;
 }
 
+int32_t net_destroy_timer(NetTimer *net_timer)
+{
+	list_del(&net_timer->list);
+
+	free(net_timer->pTimerData);
+	free(net_timer);
+	return 0;
+}
+
 int32_t net_destroy_timer_by_sessionid(SessionID nSessionID)
 {
 	NetTimer *find_net_timer = net_find_timer(nSessionID);
 	if(find_net_timer != NULL)
 	{
-		net_destroy_timer(find_net_timer);
+		net_deprecate_timer(find_net_timer);
 	}
 	return 0;
 }

@@ -31,6 +31,8 @@ int32_t net_timer_uninit();
 
 NetTimer *net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop);
 
+int32_t net_deprecate_timer(NetTimer *net_timer);
+
 int32_t net_destroy_timer(NetTimer *net_timer);
 
 int32_t net_destroy_timer_by_sessionid(SessionID nSessionID);
