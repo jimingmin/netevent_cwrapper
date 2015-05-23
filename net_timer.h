@@ -21,6 +21,7 @@ typedef struct tagNetTimer
 	int32_t				nCycleTime;
 	int32_t				bIsLoop;
 	int32_t				nEndTime;
+	int32_t				bCanUse;
 	struct list_head	list;
 }NetTimer;
 
@@ -28,7 +29,7 @@ int32_t net_timer_init();
 
 int32_t net_timer_uninit();
 
-int32_t net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop);
+NetTimer *net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop);
 
 int32_t net_destroy_timer(NetTimer *net_timer);
 

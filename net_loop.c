@@ -15,6 +15,7 @@
 #include "list.h"
 #include "msg_hook.h"
 #include "logger_extern.h"
+#include "event_dump.h"
 
 EXPORT struct NetContext *g_pNetContext;
 EXPORT LOCK_HANDLE g_hRecvLock;
@@ -40,6 +41,11 @@ int32_t net_init(const char *log_dir, const char *log_name)
 
 		set_log_dir(log_dir);
 		start_log_thread();
+	}
+	else
+	{
+		g_pNetContext->pLogDir = NULL;
+		g_pNetContext->pLogName = NULL;
 	}
 
 	//注册回调接口

@@ -37,7 +37,7 @@ int32_t net_timer_uninit()
 	return 0;
 }
 
-int32_t net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop)
+NetTimer *net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, int32_t bIsLoop)
 {
 	NetTimer *net_timer;
 	time_t now;
@@ -49,18 +49,20 @@ int32_t net_create_timer(TimerProc Proc, void *pTimerData, int32_t nCycleTime, i
 	net_timer->nCycleTime = nCycleTime;
 	net_timer->bIsLoop = bIsLoop;
 	net_timer->nEndTime = (int32_t)(now + nCycleTime);
+	net_timer->bCanUse = 1;
 
 	net_insert_timer(net_timer);
 
-	return 0;
+	return net_timer;
 }
 
 int32_t net_destroy_timer(NetTimer *net_timer)
 {
-	list_del(&net_timer->list);
+	net_timer->bCanUse = 0;
+	//list_del(&net_timer->list);
 
-	free(net_timer->pTimerData);
-	free(net_timer);
+	//free(net_timer->pTimerData);
+	//free(net_timer);
 
 	return 0;
 }
@@ -140,6 +142,11 @@ int32_t net_loop_timer()
         {
             continue;
         }
+		if(net_timer->bCanUse == 0)
+		{
+			net_destroy_timer(net_timer);
+			continue;
+		}
         
         (*net_timer->Proc)(net_timer->pTimerData);
 
