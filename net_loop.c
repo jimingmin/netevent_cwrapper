@@ -145,6 +145,8 @@ int32_t net_send_data()
 {
 	struct list_head *pos, *backup;
 	struct PacketList *packet;
+	uint32_t offset;
+	struct event_head head;
 
 	if(list_empty(g_pNetContext->pSendList))
 	{
@@ -162,6 +164,11 @@ int32_t net_send_data()
 	list_for_each_safe(pos, backup, g_pNetContext->pSendList)
 	{
 		packet = list_entry(pos, struct PacketList, list);
+
+	    offset = 0;
+	    decode_event_head(packet->pPacketData, packet->nPacketSize, &offset, &head);
+		event_dump_head(g_pNetContext->pLogName, "send", &head);
+
 		net_write(g_pNetContext->pNetHandler, packet->nSessionID, packet->pPacketData, packet->nPacketSize);
 
 		list_del(pos);

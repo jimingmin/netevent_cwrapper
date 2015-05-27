@@ -241,6 +241,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 			pTimerData->nSessionID = nSessionID;
 		    pTimerData->nMissCount = 0;
 
+		    dump_string("start health timer");
 			net_create_timer(check_net_health, pTimerData, 60, 1);
 		}
 	}
@@ -263,7 +264,6 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	uint8_t head_size;
 	struct PacketList *packet;
-	struct event_head head;
 	int32_t nRawDataSize = nBytes;
 	uint32_t offset = 0;
 	uint16_t body_size = 0;
@@ -294,10 +294,6 @@ int32_t func_net_write(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 	packet->nPacketSize = head_size + body_size;
 	encode_uint16_t(packet->pPacketData, packet->nPacketSize, &offset, packet->nPacketSize);
-
-    offset = 0;
-    decode_event_head(packet->pPacketData, packet->nPacketSize, &offset, &head);
-	event_dump_head(g_pNetContext->pLogName, "send", &head);
 
 	lock(g_pNetContext->stSendLock);
 	list_add_tail(&packet->list, g_pNetContext->pSendList);
