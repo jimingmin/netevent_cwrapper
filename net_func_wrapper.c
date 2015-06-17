@@ -10,11 +10,11 @@
 
 extern struct NetContext *g_pNetContext;
 
-struct CNetHandler* init_context_wrapper()
+struct CNetHandler* init_context_wrapper(const char *log_dir, const char *log_name)
 {
 	return init_context(net_parser_wrapper, net_accept_completed_wrapper, net_connect_completed_wrapper,
 			net_connect_timeout_wrapper, net_read_completed_wrapper, net_write_completed_wrapper,
-			net_close_completed_wrapper, net_error_wrapper);
+			net_close_completed_wrapper, net_error_wrapper, log_dir, log_name);
 }
 
 void uninit_context_wrapper(struct CNetHandler *pNetHandler)
