@@ -54,7 +54,7 @@ int32_t net_init(const char *log_dir, const char *log_name)
 		func_net_error);
 
 	//初始化网络环境
-	g_pNetContext->pNetHandler = init_context_wrapper();
+	g_pNetContext->pNetHandler = init_context_wrapper(log_dir, log_name);
 	//初始化接收器
 	g_pNetContext->pAcceptor = create_acceptor_wrapper(g_pNetContext->pNetHandler);
 	//初始化连接器
