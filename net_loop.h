@@ -10,16 +10,16 @@
 
 //extern struct NetContext *g_pNetContext;
 
-int32_t net_init(const char *log_dir, const char *log_name);
+EXPORT int32_t net_init(const char *log_dir, const char *log_name);
 
-int32_t net_connect_server();
+EXPORT int32_t net_connect_server();
 
-int32_t net_start_server();
+EXPORT int32_t net_start_server();
 
-int32_t net_stop();
+EXPORT int32_t net_stop();
 
-int32_t net_send_data();
+EXPORT int32_t net_send_data();
 
-int32_t net_loop();
+EXPORT int32_t net_loop();
 
-void net_uninit();
+EXPORT void net_uninit();

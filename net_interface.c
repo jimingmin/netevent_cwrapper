@@ -249,7 +249,7 @@ int32_t func_net_recved(SessionID nSessionID, uint8_t *pData, int32_t nBytes)
 
 		    dump_string("start health timer");
 
-			net_create_timer(check_net_health, pTimerData, 60, 1);
+			net_create_timer(check_net_health, pTimerData, 120, 1);
 		}
 	}
 
